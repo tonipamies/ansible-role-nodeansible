@@ -9,7 +9,6 @@
   include: preasserts.yml
   tags:
     - always
-
 #
 # Includes distribution dependent variables
 #
@@ -37,21 +36,21 @@
 #
 # Creates ansible.cfg file
 #
-- name: TEMPLATE | Creates ansible configuration file
-  template:
-    src: etc/ansible/ansible.cfg.j2
-    dest: /etc/ansible/ansible.cfg
-    mode: 0644
-    backup: "{{ backup_config_files }}"
-    owner: root
-    group: root
-  tags:
-    - install
-    - configure
-- name: FORA
-  assert:
-    that:
-      - false = true
+#- name: TEMPLATE | Creates ansible configuration file
+#  template:
+#    src: etc/ansible/ansible.cfg.j2
+#    dest: /etc/ansible/ansible.cfg
+#    mode: 0644
+#    backup: "{{ backup_config_files }}"
+#    owner: root
+#    group: root
+#  tags:
+#    - install
+#    - configure
+#- name: FORA
+#  assert:
+#    that:
+#      - false = true
 #
 # Installs ansible base packages
 #
@@ -132,9 +131,7 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_library
-             | default('/usr/share/ansible/plugins/modules')
-             | list }}"
+  loop: "{{ cfg_library | default(['/usr/share/ansible/plugins/modules']) }}"
   when:
     - item is not regex( '^(~).*' )
   tags:
@@ -151,9 +148,7 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_module_utils
-             | default('/usr/share/ansible/plugins/module_utils')
-             | list }}"
+  loop: "{{ cfg_module_utils | default(['/usr/share/ansible/plugins/module_utils']) }}"
   when:
     - item is not regex( '^(~).*' )
   tags:
@@ -170,9 +165,7 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_roles_path
-             | default('/etc/ansible/roles')
-             | list }}"
+  loop: "{{ cfg_roles_path | default(['/etc/ansible/roles']) }}"
   when:
     - item is not regex( '^(~).*' )
   tags:
@@ -189,11 +182,244 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_collections_paths
-             | default('/etc/ansible/collections')
-             | list }}"
+  loop: "{{ cfg_collections_paths | default(['/etc/ansible/collections']) }}"
   when:
     - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+#
+# Ensures that all plugins directories exists
+#
+- name: "CREATE_DIR | Ensures that action plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_action_plugins | default(['/usr/share/ansible/plugins/action']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that become plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_become_plugins | default(['/usr/share/ansible/plugins/become']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that cache plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_cache_plugins | default(['/usr/share/ansible/plugins/cache']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that callback plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_callback_plugins | default(['/usr/share/ansible/plugins/callback']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that connection plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_connection_plugins | default(['/usr/share/ansible/plugins/connection']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that lookup plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_lookup_plugins | default(['/usr/share/ansible/plugins/lookup']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that inventory plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_inventory_plugins | default(['/usr/share/ansible/plugins/inventory']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that vars plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_vars_plugins | default(['/usr/share/ansible/plugins/vars']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that filter plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_filter_plugins | default(['/usr/share/ansible/plugins/filter']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that test plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_test_plugins | default(['/usr/share/ansible/plugins/test']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that terminal plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_terminal_plugins | default(['/usr/share/ansible/plugins/terminal']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+
+- name: "CREATE_DIR | Ensures that strategy plugins directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_strategy_plugins | default(['/usr/share/ansible/plugins/strategy']) }}"
+  when:
+    - item is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
+#
+# Deploying ansible callback plugins from Git
+#
+- name: "CREATE_DIR | Ensures that temporal directory exists"
+  file:
+    path: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+
+- name: INSTALL_PLUGINS | Deploying ansible plugins from Git
+  git:
+    dest: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}/{{ item.name }}"
+    repo: "{{ item.source }}"
+    clone: yes
+    update: yes
+    force: yes
+    recursive: no
+  loop: "{{ install_plugins }}"
+  when:
+    - install_plugins is defined
+    - item.origen == "git"
+  tags:
+    - install
+    - configure
+
+- name: INSTALL_PLUGINS | Install plugins to correct directory
+  copy:
+    src: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}/{{ item.name }}/{{ item.file }}"
+    dest: "{{ cfg_callback_plugins | first | default('/usr/share/ansible/plugins/callback') }}"
+    remote_src: yes
+    backup: no
+  loop: "{{ install_plugins }}"
+  when:
+    - install_plugins is defined
+    - item.type == "callback"
+    - item.origen == "git"
+  tags:
+    - install
+    - configure
+
+- name: REMOVE_TMP_DIR | Remove temporal directory
+  file:
+    state: absent
+    path: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}"
   tags:
     - install
     - configure

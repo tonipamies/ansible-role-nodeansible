@@ -46,6 +46,32 @@ cfg_gathering: smart
 cfg_gather_subset:
   - 'all'
 #
+# some hardware related facts are collected
+# with a maximum timeout of 10 seconds. This
+# option lets you increase or decrease that
+# timeout to something more suitable for the
+# environment.
+#
+cfg_gather_timeout: 10
+#
+# Ansible facts are available inside the ansible_facts.* dictionary
+# namespace. This setting maintains the behaviour which was the default prior
+# to 2.5, duplicating these variables into the main namespace, each with a
+# prefix of 'ansible_'.
+# This variable is set to True by default for backwards compatibility. It
+# will be changed to a default of 'False' in a future release.
+#
+cfg_inject_facts_as_vars: false
+#
+# You can only have one 'stdout' callback type enabled at a time. The default
+# is 'default'. The 'yaml' or 'debug' stdout callback plugins are easier to read.
+#
+#stdout_callback = default
+#stdout_callback = yaml
+#stdout_callback = debug
+#stdout_callback = astomlog
+cfg_stdout_callback: astomlog
+#
 # Paths to search for roles
 #
 cfg_roles_path:
@@ -60,6 +86,43 @@ cfg_collections_paths:
   - /usr/share/ansible/collections
   - /etc/ansible/collections
 #
+# set plugin path directories here
+#
+cfg_action_plugins:
+  - /usr/share/ansible/plugins/action
+cfg_become_plugins:
+  - /usr/share/ansible/plugins/become
+cfg_cache_plugins:
+  - /usr/share/ansible/plugins/cache
+cfg_callback_plugins:
+  - /usr/share/ansible/plugins/callback
+cfg_connection_plugins:
+  - /usr/share/ansible/plugins/connection
+cfg_lookup_plugins:
+  - /usr/share/ansible/plugins/lookup
+cfg_inventory_plugins:
+  - /usr/share/ansible/plugins/inventory
+cfg_vars_plugins:
+  - /usr/share/ansible/plugins/vars
+cfg_filter_plugins:
+  - /usr/share/ansible/plugins/filter
+cfg_test_plugins:
+  - /usr/share/ansible/plugins/test
+cfg_terminal_plugins:
+  - /usr/share/ansible/plugins/terminal
+cfg_strategy_plugins:
+  - /usr/share/ansible/plugins/strategy
+#
+# Plugins to be installed
+#
+git_tmp_dir: /tmp/git_tmp/
+install_plugins:
+  - name: astomlog
+    file: callbacks/anstomlog.py
+    type: callback
+    origen: git
+    source: https://github.com/octplane/ansible_stdout_compact_logger.git
+#
 # All of these packages are installed via pip
 #
 install_ansible_lint: true
@@ -67,7 +130,7 @@ install_ansible_lint: true
 # Default configuration for role tonipamies.vim
 # https://galaxy.ansible.com/tonipamies/vim
 #
-vim_for_sysadmins: false
+vim_for_sysadmins: true
 vim_color: darkblue
 vim_airline_theme: luna
 vim_custom_pathogen_plugins: []

@@ -132,6 +132,9 @@ roles_path = {% for path in cfg_roles_path %}
 #stdout_callback = default
 #stdout_callback = yaml
 #stdout_callback = debug
+{% if cfg_stdout_callback is defined %}
+stdout_callback = {{ cfg_stdout_callback }}
+{% endif %}
 
 
 # Ansible ships with some plugins that require enabling
@@ -252,20 +255,115 @@ roles_path = {% for path in cfg_roles_path %}
 #
 #command_warnings = False
 
-
 # set plugin path directories here, separate with colons
+{% if cfg_action_plugins is defined %}
+action_plugins = {% for path in cfg_action_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #action_plugins     = /usr/share/ansible/plugins/action
+{% endif %}
+{% if cfg_become_plugins is defined %}
+become_plugins = {% for path in cfg_become_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #become_plugins     = /usr/share/ansible/plugins/become
+{% endif %}
+{% if cfg_cache_plugins is defined %}
+cache_plugins = {% for path in cfg_cache_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #cache_plugins      = /usr/share/ansible/plugins/cache
+{% endif %}
+{% if cfg_callback_plugins is defined %}
+callback_plugins = {% for path in cfg_callback_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #callback_plugins   = /usr/share/ansible/plugins/callback
+{% endif %}
+{% if cfg_connection_plugins is defined %}
+connection_plugins = {% for path in cfg_connection_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #connection_plugins = /usr/share/ansible/plugins/connection
+{% endif %}
+{% if cfg_lookup_plugins is defined %}
+lookup_plugins = {% for path in cfg_lookup_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #lookup_plugins     = /usr/share/ansible/plugins/lookup
+{% endif %}
+{% if cfg_inventory_plugins is defined %}
+inventory_plugins = {% for path in cfg_inventory_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #inventory_plugins  = /usr/share/ansible/plugins/inventory
+{% endif %}
+{% if cfg_vars_plugins is defined %}
+vars_plugins = {% for path in cfg_vars_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #vars_plugins       = /usr/share/ansible/plugins/vars
+{% endif %}
+{% if cfg_filter_plugins is defined %}
+filter_plugins = {% for path in cfg_filter_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #filter_plugins     = /usr/share/ansible/plugins/filter
+{% endif %}
+{% if cfg_test_plugins is defined %}
+test_plugins = {% for path in cfg_test_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #test_plugins       = /usr/share/ansible/plugins/test
+{% endif %}
+{% if cfg_terminal_plugins is defined %}
+terminal_plugins = {% for path in cfg_terminal_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #terminal_plugins   = /usr/share/ansible/plugins/terminal
+{% endif %}
+{% if cfg_strategy_plugins is defined %}
+strategy_plugins = {% for path in cfg_strategy_plugins %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
 #strategy_plugins   = /usr/share/ansible/plugins/strategy
+{% endif %}
 
 
 # Ansible will use the 'linear' strategy but you may want to try another one.

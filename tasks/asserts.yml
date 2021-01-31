@@ -141,6 +141,47 @@
       - '!facter'
       - '!ohai'
 #
+# Test if cfg_gather_timeout is set correctly
+#
+- name: CHECK VAR | Checks if cfg_gather_timeout is set correctly
+  assert:
+    that:
+      - cfg_gather_timeout is defined
+      - cfg_gather_timeout is number
+    fail_msg: "The variable 'cfg_gather_timeout' must be defined and must be a number"
+    quiet: yes
+#
+# Test if cfg_inject_facts_as_vars is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_inject_facts_as_vars is defined and has a correct value
+  assert:
+    that:
+      - cfg_inject_facts_as_vars is defined
+      - cfg_inject_facts_as_vars
+          | type_debug == 'bool'
+    quiet: yes
+    fail_msg: "The variable 'cfg_inject_facts_as_vars' must be defined and must be a boolean variable"
+#
+# Test if cfg_stdout_callback are set correctly
+#
+- name: CHECK VAR | Checks if cfg_stdout_callback are set correctly
+  assert:
+    that:
+      - cfg_stdout_callback is defined
+      - cfg_stdout_callback is string
+      - cfg_stdout_callback in valid_stdout_callback
+    quiet: yes
+    fail_msg: >
+      "The variable 'cfg_stdout_callback' must be defined, must be a string and must contain one of:"
+
+      {{ valid_stdout_callback | to_nice_yaml }}
+  vars:
+    - valid_stdout_callback:
+      - default
+      - yaml
+      - debug
+      - astomlog
+#
 # Test if cfg_roles_path is set correctly
 #
 - name: CHECK VAR | Checks if cfg_roles_path is set correctly
@@ -178,6 +219,234 @@
       - item is string
     quiet: yes
   loop: "{{ cfg_collections_paths }}"
+#
+# Test if cfg_action_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_action_plugins is set correctly
+  assert:
+    that:
+      - cfg_action_plugins is defined
+      - cfg_action_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_action_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_action_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_action_plugins }}"
+#
+# Test if cfg_become_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_become_plugins is set correctly
+  assert:
+    that:
+      - cfg_become_plugins is defined
+      - cfg_become_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_become_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_become_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_become_plugins }}"
+#
+# Test if cfg_cache_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_cache_plugins is set correctly
+  assert:
+    that:
+      - cfg_cache_plugins is defined
+      - cfg_cache_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_cache_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_cache_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_cache_plugins }}"
+#
+# Test if cfg_callback_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_callback_plugins is set correctly
+  assert:
+    that:
+      - cfg_callback_plugins is defined
+      - cfg_callback_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_callback_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_callback_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_callback_plugins }}"
+#
+# Test if cfg_connection_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_connection_plugins is set correctly
+  assert:
+    that:
+      - cfg_connection_plugins is defined
+      - cfg_connection_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_connection_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_connection_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_connection_plugins }}"
+#
+# Test if cfg_lookup_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_lookup_plugins is set correctly
+  assert:
+    that:
+      - cfg_lookup_plugins is defined
+      - cfg_lookup_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_lookup_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_lookup_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_lookup_plugins }}"
+#
+# Test if cfg_inventory_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_inventory_plugins is set correctly
+  assert:
+    that:
+      - cfg_inventory_plugins is defined
+      - cfg_inventory_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_inventory_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_inventory_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_inventory_plugins }}"
+#
+# Test if cfg_vars_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_vars_plugins is set correctly
+  assert:
+    that:
+      - cfg_vars_plugins is defined
+      - cfg_vars_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_vars_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_vars_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_vars_plugins }}"
+#
+# Test if cfg_filter_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_filter_plugins is set correctly
+  assert:
+    that:
+      - cfg_filter_plugins is defined
+      - cfg_filter_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_filter_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_filter_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_filter_plugins }}"
+#
+# Test if cfg_test_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_test_plugins is set correctly
+  assert:
+    that:
+      - cfg_test_plugins is defined
+      - cfg_test_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_test_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_test_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_test_plugins }}"
+#
+# Test if cfg_terminal_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_terminal_plugins is set correctly
+  assert:
+    that:
+      - cfg_terminal_plugins is defined
+      - cfg_terminal_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_terminal_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_terminal_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_terminal_plugins }}"
+#
+# Test if cfg_strategy_plugins is set correctly
+#
+- name: CHECK VAR | Checks if cfg_strategy_plugins is set correctly
+  assert:
+    that:
+      - cfg_strategy_plugins is defined
+      - cfg_strategy_plugins is iterable
+    quiet: yes
+#
+# Test if items in cfg_strategy_plugins are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_strategy_plugins are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+  loop: "{{ cfg_strategy_plugins }}"
 #
 # Minimal Asserts for tonipamies.vim role
 #
