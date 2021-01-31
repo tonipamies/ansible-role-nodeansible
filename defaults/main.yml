@@ -32,9 +32,23 @@ cfg_module_utils:
 # explicit - do not gather by default, must say gather_facts: True
 cfg_gathering: smart
 #
+# This only affects the gathering done by a play's gather_facts directive,
+# by default gathering retrieves all facts subsets
+# all - gather all subsets
+# network - gather min and network facts
+# hardware - gather hardware facts (longest facts to retrieve)
+# virtual - gather min and virtual facts
+# facter - import facts from facter
+# ohai - import facts from ohai
+# You can combine them
+# You can negate them using ! (ex: !hardware)
+# A minimal set of facts is always gathered.
+cfg_gather_subset:
+  - 'all'
+#
 # Paths to search for roles
 #
-cfg_roles_path: 
+cfg_roles_path:
   - ~/.ansible/roles
   - /usr/share/ansible/roles
   - /etc/ansible/roles
@@ -53,7 +67,7 @@ install_ansible_lint: true
 # Default configuration for role tonipamies.vim
 # https://galaxy.ansible.com/tonipamies/vim
 #
-vim_for_sysadmins: true
+vim_for_sysadmins: false
 vim_color: darkblue
 vim_airline_theme: luna
 vim_custom_pathogen_plugins: []

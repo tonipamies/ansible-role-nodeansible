@@ -43,8 +43,8 @@
 #db-[99:101]-node.example.com
 
 #
-# The all:vars subgroup sets the ansible_python_interpreter host parameter that will be valid for all hosts 
-# included in this inventory. This parameter makes sure the remote server uses the /usr/bin/python3 Python 3 
+# The all:vars subgroup sets the ansible_python_interpreter host parameter that will be valid for all hosts
+# included in this inventory. This parameter makes sure the remote server uses the /usr/bin/python3 Python 3
 # executable instead of /usr/bin/python (Python 2.7), which is not present on recent Ubuntu versions.
 #
 #[all:vars]

@@ -55,7 +55,6 @@
       - cfg_library is defined
       - cfg_library is iterable
     quiet: yes
-
 #
 # Test if items in cfg_library are set correctly
 #
@@ -75,7 +74,6 @@
       - cfg_module_utils is defined
       - cfg_module_utils is iterable
     quiet: yes
-
 #
 # Test if items in cfg_module_utils are set correctly
 #
@@ -106,6 +104,43 @@
       - implicit
       - explicit
 #
+# Test if cfg_gather_subset is set correctly
+#
+- name: CHECK VAR | Checks if cfg_gather_subset is set correctly
+  assert:
+    that:
+      - cfg_gather_subset is defined
+      - cfg_gather_subset is iterable
+    quiet: yes
+#
+# Test if items in cfg_gather_subset are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_gather_subset are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+      - item in valid_gather_subset
+    quiet: yes
+    fail_msg: >
+      "The items of 'cfg_gather_subset' must be defined, must be a string and must contain one of:"
+
+      {{ valid_gather_subset | to_nice_yaml }}
+  loop: "{{ cfg_gather_subset }}"
+  vars:
+    - valid_gather_subset:
+      - all
+      - network
+      - hardware
+      - virtual
+      - facter
+      - ohai
+      - '!network'
+      - '!hardware'
+      - '!virtual'
+      - '!facter'
+      - '!ohai'
+#
 # Test if cfg_roles_path is set correctly
 #
 - name: CHECK VAR | Checks if cfg_roles_path is set correctly
@@ -114,7 +149,6 @@
       - cfg_roles_path is defined
       - cfg_roles_path is iterable
     quiet: yes
-
 #
 # Test if items in cfg_roles_path are set correctly
 #
@@ -134,7 +168,6 @@
       - cfg_collections_paths is defined
       - cfg_collections_paths is iterable
     quiet: yes
-
 #
 # Test if items in cfg_collections_paths are set correctly
 #
@@ -145,7 +178,7 @@
       - item is string
     quiet: yes
   loop: "{{ cfg_collections_paths }}"
-# 
+#
 # Minimal Asserts for tonipamies.vim role
 #
 # Test if vim_for_sysadmins is defined and has a correct value

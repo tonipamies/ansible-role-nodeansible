@@ -1,3 +1,4 @@
+{{ ansible_managed | comment }}
 # Example config file for ansible -- https://ansible.com/
 # =======================================================
 
@@ -12,27 +13,28 @@
 
 [defaults]
 {% if cfg_hosts_inventory is defined %}
-inventory = {{ cfg_hosts_inventory }}
+inventory        = {{ cfg_hosts_inventory }}
 {% else %}
-#inventory = /etc/ansible/hosts
-{% endif +%}
+#inventory       = /etc/ansible/hosts
+{% endif %}
 {% if cfg_library is defined %}
-library = {% for path in cfg_library %}
+library          = {% for path in cfg_library %}
 {{ path }}
 {%- if not loop.last %}:{% endif %}
 {% endfor %}
-{% else %}
-#library = ~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules
-{% endif +%}
-{% if cfg_module_utils is defined %}
-module_utils = {% for path in cfg_module_utils %}
-{{ path }}
-{%- if not loop.last %}:{% endif %}
-{% endfor %}
-{% else %}
-#module_utils = ~/.ansible/plugins/module_utils:/usr/share/ansible/plugins/module_utils
-{% endif +%}
 
+{% else %}
+#library         = ~/.ansible/plugins/modules:/usr/share/ansible/plugins/modules
+{% endif %}
+{% if cfg_module_utils is defined %}
+module_utils     = {% for path in cfg_module_utils %}
+{{ path }}
+{%- if not loop.last %}:{% endif %}
+{% endfor %}
+
+{% else %}
+#module_utils    = ~/.ansible/plugins/module_utils:/usr/share/ansible/plugins/module_utils
+{% endif %}
 #remote_tmp      = ~/.ansible/tmp
 #local_tmp       = ~/.ansible/tmp
 #forks           = 5
@@ -48,9 +50,9 @@ module_utils = {% for path in cfg_module_utils %}
 # explicit - do not gather by default, must say gather_facts: True
 {% if cfg_gathering is defined %}
 gathering = {{ cfg_gathering }}
-{% else %} 
+{% else %}
 #gathering = implicit
-{% endif +%}
+{% endif %}
 
 # This only affects the gathering done by a play's gather_facts directive,
 # by default gathering retrieves all facts subsets
@@ -64,7 +66,15 @@ gathering = {{ cfg_gathering }}
 # You can negate them using ! (ex: !hardware,!facter,!ohai)
 # A minimal set of facts is always gathered.
 #
+{% if cfg_gather_subset is defined %}
+gather_subset = {% for subset in cfg_gather_subset %}
+{{ subset }}
+{%- if not loop.last %},{% endif %}
+{% endfor %}
+
+{% else %}
 #gather_subset = all
+{% endif %}
 
 # some hardware related facts are collected
 # with a maximum timeout of 10 seconds. This
@@ -72,7 +82,11 @@ gathering = {{ cfg_gathering }}
 # timeout to something more suitable for the
 # environment.
 #
+{% if cfg_gather_timeout is defined %}
+gather_timeout = {{ cfg_gather_timeout }}
+{% else %}
 #gather_timeout = 10
+{% endif %}
 
 # Ansible facts are available inside the ansible_facts.* dictionary
 # namespace. This setting maintains the behaviour which was the default prior
@@ -81,7 +95,11 @@ gathering = {{ cfg_gathering }}
 # This variable is set to True by default for backwards compatibility. It
 # will be changed to a default of 'False' in a future release.
 #
-#inject_facts_as_vars = True
+{% if cfg_inject_facts_as_vars is defined and cfg_inject_facts_as_vars %}
+inject_facts_as_vars = True
+{% else %}
+inject_facts_as_vars = False
+{% endif %}
 
 # Paths to search for collections, colon separated
 {% if cfg_collections_paths is defined %}
@@ -89,9 +107,10 @@ collections_paths = {% for path in cfg_collections_paths %}
 {{ path }}
 {%- if not loop.last %}:{% endif %}
 {% endfor %}
+
 {% else %}
 # collections_paths = ~/.ansible/collections:/usr/share/ansible/collections
-{% endif +%}
+{% endif %}
 
 # Paths to search for roles, colon separated
 {% if cfg_roles_path is defined %}
@@ -99,9 +118,10 @@ roles_path = {% for path in cfg_roles_path %}
 {{ path }}
 {%- if not loop.last %}:{% endif %}
 {% endfor %}
+
 {% else %}
 #roles_path = ~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
-{% endif +%}
+{% endif %}
 
 # Host key checking is enabled by default
 #host_key_checking = True

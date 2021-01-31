@@ -27,7 +27,6 @@
       skip: true
   tags:
     - always
-
 #
 # Asserts
 #
@@ -35,7 +34,24 @@
   include: asserts.yml
   tags:
     - always
-
+#
+# Creates ansible.cfg file
+#
+- name: TEMPLATE | Creates ansible configuration file
+  template:
+    src: etc/ansible/ansible.cfg.j2
+    dest: /etc/ansible/ansible.cfg
+    mode: 0644
+    backup: "{{ backup_config_files }}"
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+- name: FORA
+  assert:
+    that:
+      - false = true
 #
 # Installs ansible base packages
 #
@@ -53,7 +69,7 @@
   pip:
     extra_args: "--no-cache-dir"
     name: "{{ item.1 }}"
-    state: forcereinstall
+    state: latest
   loop: "{{ ansible_pip_packages|subelements('packages') }}"
   when:
     - item.0.install is defined and item.0.install
@@ -117,10 +133,10 @@
     owner: root
     group: root
   loop: "{{ cfg_library
-             | default('/usr/share/ansible/plugins/modules') 
+             | default('/usr/share/ansible/plugins/modules')
              | list }}"
-  when: 
-    - item is not regex( '^(~).*' ) 
+  when:
+    - item is not regex( '^(~).*' )
   tags:
     - install
     - configure
@@ -136,10 +152,10 @@
     owner: root
     group: root
   loop: "{{ cfg_module_utils
-             | default('/usr/share/ansible/plugins/module_utils') 
+             | default('/usr/share/ansible/plugins/module_utils')
              | list }}"
-  when: 
-    - item is not regex( '^(~).*' ) 
+  when:
+    - item is not regex( '^(~).*' )
   tags:
     - install
     - configure
@@ -154,11 +170,11 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_roles_path 
-             | default('/etc/ansible/roles') 
+  loop: "{{ cfg_roles_path
+             | default('/etc/ansible/roles')
              | list }}"
-  when: 
-    - item is not regex( '^(~).*' ) 
+  when:
+    - item is not regex( '^(~).*' )
   tags:
     - install
     - configure
@@ -173,11 +189,11 @@
     mode: 0755
     owner: root
     group: root
-  loop: "{{ cfg_collections_paths 
-             | default('/etc/ansible/collections') 
+  loop: "{{ cfg_collections_paths
+             | default('/etc/ansible/collections')
              | list }}"
-  when: 
-    - item is not regex( '^(~).*' ) 
+  when:
+    - item is not regex( '^(~).*' )
   tags:
     - install
     - configure
@@ -195,4 +211,3 @@
   tags:
     - install
     - configure
-
