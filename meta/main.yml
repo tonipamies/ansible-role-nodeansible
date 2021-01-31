@@ -1,0 +1,42 @@
+# file: roles/nodeansible/meta/main.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+galaxy_info:
+  role_name: nodeansible
+  author: Antoni Pàmies
+  description: Ansible Role to install and configure ansible in linux distributions
+  min_ansible_version: 2.9.0
+  license: GPLv3
+  platforms:
+    - name: EL
+      versions:
+        - 8
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: Fedora
+      versions:
+        - 31
+        - 32
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - groovy
+  galaxy_tags:
+    - vim
+    - system
+    - sysadmin
+
+dependencies:
+  - role: tonipamies.vim
+    vars:
+      - color: "{{ vim_color }}"
+      - airline_theme: "{{ vim_airline_theme }}"
+      - custom_pathogen_plugins: "{{ vim_custom_pathogen_plugins }}"
+      - backup_config_files: "{{ vim_backup_config_files }}"
+    when:
+      - vim_for_sysadmins is defined
+      - vim_for_sysadmins | bool

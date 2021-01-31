@@ -1,0 +1,60 @@
+# file: roles/nodeansible/defaults/main.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+#
+# Default definitions
+#
+ansible_base_packages: []
+backup_config_files: false
+#
+# Ansible configuration
+#
+cfg_hosts_inventory: /etc/ansible/hosts
+#
+# Library path
+#
+cfg_library:
+  - ~/.ansible/plugins/modules
+  - /usr/share/ansible/plugins/modules
+#
+# module_utils
+#
+cfg_module_utils:
+  - ~/.ansible/plugins/module_utils
+  - /usr/share/ansible/plugins/module_utils
+#
+# Plays will gather facts by default, which contain information about
+# the remote system.
+#
+# smart - gather by default, but don't regather if already gathered
+# implicit - gather by default, turn off with gather_facts: False
+# explicit - do not gather by default, must say gather_facts: True
+cfg_gathering: smart
+#
+# Paths to search for roles
+#
+cfg_roles_path: 
+  - ~/.ansible/roles
+  - /usr/share/ansible/roles
+  - /etc/ansible/roles
+#
+# Paths to search for collections
+#
+cfg_collections_paths:
+  - ~/.ansible/collections
+  - /usr/share/ansible/collections
+  - /etc/ansible/collections
+#
+# All of these packages are installed via pip
+#
+install_ansible_lint: true
+#
+# Default configuration for role tonipamies.vim
+# https://galaxy.ansible.com/tonipamies/vim
+#
+vim_for_sysadmins: true
+vim_color: darkblue
+vim_airline_theme: luna
+vim_custom_pathogen_plugins: []
+vim_backup_config_files: false

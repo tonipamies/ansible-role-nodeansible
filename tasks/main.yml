@@ -1,0 +1,198 @@
+# file: roles/vim/tasks/main.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+#
+# Asserts
+#
+- name: INCLUDE PREASSERTS | Includes PreAsserts
+  include: preasserts.yml
+  tags:
+    - always
+
+#
+# Includes distribution dependent variables
+#
+- name: INCLUDE VARS | Includes distribution dependent variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+      paths:
+        - roles/nodeansible/vars/
+        - ../vars/
+      skip: true
+  tags:
+    - always
+
+#
+# Asserts
+#
+- name: INCLUDE ASSERTS | Include Asserts
+  include: asserts.yml
+  tags:
+    - always
+
+#
+# Installs ansible base packages
+#
+- name: INSTALL_PKG | Installs Git and Ansible Base Packages | WARNING! This task can take several minutes
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ ansible_base_packages }}"
+  tags:
+    - install
+#
+# Installs ansible pip packages
+#
+- name: INSTALL_PKG | Installs pip ansible Packages | WARNING! This task can take several minutes
+  pip:
+    extra_args: "--no-cache-dir"
+    name: "{{ item.1 }}"
+    state: forcereinstall
+  loop: "{{ ansible_pip_packages|subelements('packages') }}"
+  when:
+    - item.0.install is defined and item.0.install
+  tags:
+    - install
+#
+# Ensures that /etc/ansible directory exists
+#
+- name: CREATE_DIR | Ensures /etc/ansible directory exists
+  file:
+    path: "/etc/ansible"
+    state: directory
+    recurse: no
+    mode: 0755
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+
+#
+# Ensures that cfg_hosts_inventory directory exists
+#
+- name: "CREATE_DIR | Ensures that {{ cfg_hosts_inventory | dirname }} directory exists"
+  file:
+    path: "{{ cfg_hosts_inventory | dirname | default('/etc/ansible/') }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  when:
+    - cfg_hosts_inventory | dirname | default('/etc/ansible/') != '/etc/ansible'
+  tags:
+    - install
+    - configure
+
+#
+# Creates inventary host file
+#
+- name: TEMPLATE | Creates inventary host file
+  template:
+    src: etc/ansible/hosts
+    dest: "{{ cfg_hosts_inventory | default('/etc/ansible/hosts') }}"
+    mode: 0644
+    backup: "{{ backup_config_files }}"
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+#
+# Ensures that all library directories exists
+#
+- name: "CREATE_DIR | Ensures that all library directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_library
+             | default('/usr/share/ansible/plugins/modules') 
+             | list }}"
+  when: 
+    - item is not regex( '^(~).*' ) 
+  tags:
+    - install
+    - configure
+#
+# Ensures that module_utils directory exists
+#
+- name: "CREATE_DIR | Ensures that all module_utils directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_module_utils
+             | default('/usr/share/ansible/plugins/module_utils') 
+             | list }}"
+  when: 
+    - item is not regex( '^(~).*' ) 
+  tags:
+    - install
+    - configure
+#
+# Ensures that cfg_roles_path directory exists
+#
+- name: "CREATE_DIR | Ensures that all roles_path directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_roles_path 
+             | default('/etc/ansible/roles') 
+             | list }}"
+  when: 
+    - item is not regex( '^(~).*' ) 
+  tags:
+    - install
+    - configure
+#
+# Ensures that cfg_collections_paths directory exists
+#
+- name: "CREATE_DIR | Ensures that all collections_paths directories exists"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  loop: "{{ cfg_collections_paths 
+             | default('/etc/ansible/collections') 
+             | list }}"
+  when: 
+    - item is not regex( '^(~).*' ) 
+  tags:
+    - install
+    - configure
+#
+# Creates ansible.cfg file
+#
+- name: TEMPLATE | Creates ansible configuration file
+  template:
+    src: etc/ansible/ansible.cfg.j2
+    dest: /etc/ansible/ansible.cfg
+    mode: 0644
+    backup: "{{ backup_config_files }}"
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+

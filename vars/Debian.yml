@@ -1,0 +1,25 @@
+# file: roles/node_ansible/vars/Debian.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+#
+# List of Packages
+#
+ansible_base_packages:
+  - git
+  - python3-minimal
+  - python3-pip
+  - python3-setuptools
+#
+# List of pip packages
+#
+ansible_pip_packages:
+  - name: 'ansible-base and ansible'
+    install: true
+    packages:
+      - ansible-base
+      - ansible
+  - name: 'ansible-lint'
+    install: "{{ install_ansible_lint | default(false) }}"
+    packages:
+      - ansible-lint
