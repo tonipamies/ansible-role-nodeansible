@@ -1,0 +1,83 @@
+# file: roles/nodeansible/tasks/configasserts.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+#
+# Get the list of installed packages
+#
+- name: PKG_GET_INFO | Gets the rpm or apt package facts
+  package_facts:
+    manager: "auto"
+  no_log: true
+#
+# Checks installed version of ansible installed by package manager
+#
+- name: PKG_GET_INFO | Checks installed version of ansible
+  set_fact:
+    remote_ansible_version: "{{ ansible_facts.packages['ansible'] | map(attribute='version') | first }}"
+  no_log: true
+  when:
+    - ansible_facts.packages['ansible'] is defined
+
+- name: PKG_GET_INFO | Set facts
+  set_fact:
+    remote_ansible_installed: "{{ ansible_facts.packages['ansible'] is defined | bool }}"
+  no_log: true
+#
+# Get the list of pip installed packages
+#
+- name: PIP_PKG_GET_INFO | Gets the pip package facts
+  pip_package_info:
+    clients:
+      - 'pip'
+      - 'pip2'
+      - 'pip3'
+  register: pip_facts
+  no_log: true
+#
+# Checks installed version of ansible installed by pip package manager
+#
+- name: PKG_GET_INFO | Checks pip3 installed version of ansible
+  set_fact:
+    remote_ansible_version: "{{ pip_facts.packages.pip3['ansible'] | map(attribute='version') | first }}"
+  no_log: true
+  when:
+    - pip_facts.packages.pip3['ansible'] is defined
+
+- name: PKG_GET_INFO | Set facts
+  set_fact:
+    remote_ansible_installed: "{{ pip_facts.packages.pip3['ansible'] is defined | bool }}"
+    installed_via_pip: true
+  no_log: true
+  when:
+    - pip_facts.packages.pip3['ansible'] is defined
+
+- name: PKG_GET_INFO | Checks pip2 installed version of ansible
+  set_fact:
+    remote_ansible_version: "{{ pip_facts.packages.pip2['ansible'] | map(attribute='version') | first }}"
+  no_log: true
+  when:
+    - pip_facts.packages.pip2['ansible'] is defined
+
+- name: PKG_GET_INFO | Set facts
+  set_fact:
+    remote_ansible_installed: "{{ pip_facts.packages.pip2['ansible'] is defined | bool }}"
+    installed_via_pip: true
+  no_log: true
+  when:
+    - pip_facts.packages.pip2['ansible'] is defined
+
+- name: PKG_GET_INFO | Checks pip installed version of ansible
+  set_fact:
+    remote_ansible_version: "{{ pip_facts.packages.pip['ansible'] | map(attribute='version') | first }}"
+  no_log: true
+  when:
+    - pip_facts.packages.pip['ansible'] is defined
+
+- name: PKG_GET_INFO | Set facts
+  set_fact:
+    remote_ansible_installed: "{{ pip_facts.packages.pip2['ansible'] is defined | bool }}"
+    installed_via_pip: true
+  no_log: true
+  when:
+    - pip_facts.packages.pip['ansible'] is defined

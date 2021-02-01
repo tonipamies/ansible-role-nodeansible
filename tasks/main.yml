@@ -5,14 +5,14 @@
 #
 # Asserts
 #
-- name: INCLUDE PREASSERTS | Includes PreAsserts
+- name: INCLUDE_PREASSERTS | Includes Asserts for Ansible version and distribution version
   include: preasserts.yml
   tags:
     - always
 #
 # Includes distribution dependent variables
 #
-- name: INCLUDE VARS | Includes distribution dependent variables
+- name: INCLUDE_VARS | Includes distribution dependent variables
   include_vars: "{{ item }}"
   with_first_found:
     - files:
@@ -29,36 +29,84 @@
 #
 # Asserts
 #
-- name: INCLUDE ASSERTS | Include Asserts
+- name: INCLUDE_ASSERTS | Include Asserts for Variables
   include: asserts.yml
   tags:
     - always
 #
-# Creates ansible.cfg file
-#
-#- name: TEMPLATE | Creates ansible configuration file
-#  template:
-#    src: etc/ansible/ansible.cfg.j2
-#    dest: /etc/ansible/ansible.cfg
-#    mode: 0644
-#    backup: "{{ backup_config_files }}"
-#    owner: root
-#    group: root
-#  tags:
-#    - install
-#    - configure
-#- name: FORA
-#  assert:
-#    that:
-#      - false = true
-#
 # Installs ansible base packages
 #
-- name: INSTALL_PKG | Installs Git and Ansible Base Packages | WARNING! This task can take several minutes
+- name: INSTALL_PKG | Installs Git and python Base Packages | WARNING! This task can take several minutes
   package:
     name: "{{ item }}"
     state: present
   loop: "{{ ansible_base_packages }}"
+  tags:
+    - always
+#
+#
+#
+- name: INCLUDE_ASSERTS | Include Packages Asserts
+  include: pkgasserts.yml
+  tags:
+    - always
+#
+# Checks for the node ansible installed version
+#
+- name: CHECKING_INITIAL | Checks for the node ansible installed version
+  assert:
+    that:
+      - remote_ansible_installed | bool
+    fail_msg: >
+      You are using TAG: 'configure', but the node does not have ansible installed.
+
+      Use the TAG: 'install' for do it.
+    quiet: yes
+  tags:
+    - configure
+
+- name: CHECKING_INITIAL | Checks for the node ansible installed version
+  assert:
+    that:
+      - remote_ansible_version is version('2.10', '>=')
+    fail_msg: >
+      You are using the TAG: 'configure', but the version of the ansible node that you have
+
+      installed is {{ remote_ansible_version }} and you need at least teh version '2.10'
+
+      Use the TAG: 'install' to install the new version.
+    quiet: yes
+  when:
+    - remote_ansible_installed | bool
+  tags:
+    - configure
+#
+# Remove old packages
+#
+- name: REMOVE_PKG | Remove old ansible packages
+  package:
+    name: ansible
+    state: absent
+  when:
+    - remote_ansible_installed | bool
+    - ansible_facts.packages['ansible'] is defined | bool
+  tags:
+    - install
+#
+# Remove old pip packages
+#
+- name: REMOVE_PKG | Remove old pip ansible packages
+  pip:
+    name: "{{ item.1 }}"
+    state: absent
+  loop: "{{ ansible_pip_packages|subelements('packages') }}"
+  when:
+    - remote_ansible_installed | bool
+    - installed_via_pip is defined
+    - installed_via_pip | bool
+    - item.0.install is defined
+    - item.0.install
+    - item.0.name == 'ansible-base and ansible'
   tags:
     - install
 #
@@ -71,7 +119,8 @@
     state: latest
   loop: "{{ ansible_pip_packages|subelements('packages') }}"
   when:
-    - item.0.install is defined and item.0.install
+    - item.0.install is defined
+    - item.0.install
   tags:
     - install
 #

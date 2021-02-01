@@ -26,9 +26,10 @@ galaxy_info:
         - focal
         - groovy
   galaxy_tags:
-    - vim
+    - ansible
     - system
     - sysadmin
+    - ansible node
 
 dependencies:
   - role: tonipamies.vim

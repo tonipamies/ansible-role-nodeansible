@@ -1,4 +1,4 @@
-# file: roles/node_ansible/vars/Debian.yml
+# file: roles/nodeansible/vars/Debian.yml
 # author: Antoni Pàmies <toni@arboli.net>
 #
 ---
