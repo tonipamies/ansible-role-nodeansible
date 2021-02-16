@@ -1,4 +1,4 @@
-# file: roles/vim/tasks/main.yml
+# file: roles/nodeansible/tasks/main.yml
 # author: Antoni Pàmies <toni@arboli.net>
 #
 ---
@@ -16,16 +16,17 @@
   include_vars: "{{ item }}"
   with_first_found:
     - files:
-        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
-        - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
-        - "{{ ansible_distribution }}.yml"
-        - "{{ ansible_os_family }}.yml"
+        - "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+        - "{{ ansible_facts['os_family'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+        - "{{ ansible_facts['distribution'] }}.yml"
+        - "{{ ansible_facts['os_family'] }}.yml"
       paths:
         - roles/nodeansible/vars/
         - ../vars/
       skip: true
   tags:
     - always
+
 #
 # Asserts
 #
@@ -44,7 +45,16 @@
   tags:
     - always
 #
+# Upgrade pip to the last version
 #
+- name: INSTALL_PKG | Installs last version of pip package, force upgrade
+  pip:
+    name: pip
+    state: latest  # noqa package-latest
+  tags:
+    - always
+#
+# Include Ansible Packages Asserts
 #
 - name: INCLUDE_ASSERTS | Include Packages Asserts
   include: pkgasserts.yml
@@ -58,28 +68,45 @@
     that:
       - remote_ansible_installed | bool
     fail_msg: >
-      You are using TAG: 'configure', but the node does not have ansible installed.
+      You are using TAG(s):
+
+      {{ ansible_run_tags | default(['no-tags']) | to_nice_yaml }}
+
+      but the node does not have ansible installed.
 
       Use the TAG: 'install' for do it.
     quiet: yes
+  when:
+    - ansible_run_tags is defined
+    - "'all' not in ansible_run_tags"
   tags:
     - configure
+    - install_roles
+    - install_plugins
 
 - name: CHECKING_INITIAL | Checks for the node ansible installed version
   assert:
     that:
       - remote_ansible_version is version('2.10', '>=')
     fail_msg: >
-      You are using the TAG: 'configure', but the version of the ansible node that you have
+      You are using TAG(s):
+
+      {{ ansible_run_tags | default(['no-tags']) | to_nice_yaml }}
+
+      but the version of the ansible node that you have
 
       installed is {{ remote_ansible_version }} and you need at least teh version '2.10'
 
       Use the TAG: 'install' to install the new version.
     quiet: yes
   when:
+    - ansible_run_tags is defined
+    - "'all' not in ansible_run_tags"
     - remote_ansible_installed | bool
   tags:
     - configure
+    - install_roles
+    - install_plugins
 #
 # Remove old packages
 #
@@ -95,7 +122,7 @@
 #
 # Remove old pip packages
 #
-- name: REMOVE_PKG | Remove old pip ansible packages
+- name: REMOVE_PKG | Remove old pip ansible packages | WARNING! This task can take several minutes
   pip:
     name: "{{ item.1 }}"
     state: absent
@@ -116,13 +143,23 @@
   pip:
     extra_args: "--no-cache-dir"
     name: "{{ item.1 }}"
-    state: latest
+    state: latest   # noqa package-latest
   loop: "{{ ansible_pip_packages|subelements('packages') }}"
   when:
     - item.0.install is defined
     - item.0.install
   tags:
     - install
+#
+# Ensures that user/groups exists or create when create_ansible_user is true
+#
+- name: CREATE_USER | Ensures that user/groups exists when create_ansible_user
+  include: ansible_user.yml
+  when:
+    - create_ansible_user
+  tags:
+    - install
+    - configure
 #
 # Ensures that /etc/ansible directory exists
 #
@@ -220,6 +257,7 @@
   tags:
     - install
     - configure
+    - install_roles
 #
 # Ensures that cfg_collections_paths directory exists
 #
@@ -254,6 +292,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that become plugins directories exists"
   file:
@@ -269,6 +308,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that cache plugins directories exists"
   file:
@@ -284,6 +324,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that callback plugins directories exists"
   file:
@@ -299,6 +340,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that connection plugins directories exists"
   file:
@@ -314,6 +356,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that lookup plugins directories exists"
   file:
@@ -329,6 +372,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that inventory plugins directories exists"
   file:
@@ -344,6 +388,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that vars plugins directories exists"
   file:
@@ -359,6 +404,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that filter plugins directories exists"
   file:
@@ -374,6 +420,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that test plugins directories exists"
   file:
@@ -389,6 +436,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that terminal plugins directories exists"
   file:
@@ -404,6 +452,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: "CREATE_DIR | Ensures that strategy plugins directories exists"
   file:
@@ -419,6 +468,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 #
 # Deploying ansible callback plugins from Git
 #
@@ -433,6 +483,7 @@
   tags:
     - install
     - configure
+    - install_plugins
 
 - name: INSTALL_PLUGINS | Deploying ansible plugins from Git
   git:
@@ -442,6 +493,7 @@
     update: yes
     force: yes
     recursive: no
+    version: "{{ item.version }}"
   loop: "{{ install_plugins }}"
   when:
     - install_plugins is defined
@@ -449,13 +501,15 @@
   tags:
     - install
     - configure
+    - install_plugins
 
-- name: INSTALL_PLUGINS | Install plugins to correct directory
+- name: INSTALL_PLUGINS | Installs plugins to correct directory
   copy:
     src: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}/{{ item.name }}/{{ item.file }}"
     dest: "{{ cfg_callback_plugins | first | default('/usr/share/ansible/plugins/callback') }}"
     remote_src: yes
     backup: no
+    mode: '0644'
   loop: "{{ install_plugins }}"
   when:
     - install_plugins is defined
@@ -464,14 +518,16 @@
   tags:
     - install
     - configure
+    - install_plugins
 
-- name: REMOVE_TMP_DIR | Remove temporal directory
+- name: REMOVE_TMP_DIR | Removes temporal directory
   file:
     state: absent
     path: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}"
   tags:
     - install
     - configure
+    - install_plugins
 #
 # Creates ansible.cfg file
 #
@@ -485,4 +541,48 @@
     group: root
   tags:
     - install
+    - configure
+#
+# Deploying roles
+#
+- name: INSTALL_ROLES | Installs roles
+  unarchive:
+    src: "{{ item.source }}"
+    dest: "{{ cfg_roles_path[0] }}"
+    exclude:
+      - ".[^/]*"
+    extra_opts:
+      - --transform
+      - "s:^[^/]*:{{ item.name }}:"
+    remote_src: yes
+  loop: "{{ install_roles }}"
+  when:
+    - install_roles is defined
+    - item.origen == "remote_compress"
+    - cfg_roles_path[0] is defined
+  tags:
+    - install
+    - install_roles
+    - configure
+#
+# Deploying custom roles
+#
+- name: INSTALL_ROLES | Installs custom roles
+  unarchive:
+    src: "{{ item.source }}"
+    dest: "{{ cfg_roles_path[0] }}"
+    exclude:
+      - ".[^/]*"
+    extra_opts:
+      - --transform
+      - "s:^[^/]*:{{ item.name }}:"
+    remote_src: yes
+  loop: "{{ install_custom_roles }}"
+  when:
+    - install_custom_roles is defined
+    - item.origen == "remote_compress"
+    - cfg_roles_path[0] is defined
+  tags:
+    - install
+    - install_roles
     - configure

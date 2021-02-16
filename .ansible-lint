@@ -1,0 +1,12 @@
+# .ansible-lint
+exclude_paths:
+  - .github/
+  - .git/
+  - .pre-commit-config.yaml
+# parseable: true
+# quiet: true
+# verbosity: 1
+# Enable checking of loop variable prefixes in roles
+# loop_var_prefix: "{role}_"
+
+use_default_rules: true

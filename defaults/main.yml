@@ -8,6 +8,30 @@
 ansible_base_packages: []
 backup_config_files: false
 #
+# Define Ansible Group & User
+#
+validate_password_strength: true
+create_ansible_user: true
+custom_ansible_group:
+  name: "ansible"
+  gid: 1000
+custom_ansible_user:
+  name: "ansible"
+  uid: 1000
+  shell: "/bin/bash"
+  comment: "The Ansible User"
+  group: "{{ custom_ansible_group.name }}"
+  sudoer: true
+  sudo_nopasswd: false
+  sudo_file: "ansible"
+  home: "/home/ansible"
+  password: "1234erty"
+  clear_password: ""
+  update_password: on_create
+  create_ssh_keypair: true
+  copy_rsa_keys: false
+  authorized_keys: []
+#
 # Ansible configuration
 #
 cfg_hosts_inventory: /etc/ansible/hosts
@@ -63,21 +87,12 @@ cfg_gather_timeout: 10
 #
 cfg_inject_facts_as_vars: false
 #
-# You can only have one 'stdout' callback type enabled at a time. The default
-# is 'default'. The 'yaml' or 'debug' stdout callback plugins are easier to read.
-#
-#stdout_callback = default
-#stdout_callback = yaml
-#stdout_callback = debug
-#stdout_callback = astomlog
-cfg_stdout_callback: astomlog
-#
 # Paths to search for roles
 #
 cfg_roles_path:
+  - /etc/ansible/roles
   - ~/.ansible/roles
   - /usr/share/ansible/roles
-  - /etc/ansible/roles
 #
 # Paths to search for collections
 #
@@ -85,6 +100,35 @@ cfg_collections_paths:
   - ~/.ansible/collections
   - /usr/share/ansible/collections
   - /etc/ansible/collections
+#
+# You can only have one 'stdout' callback type enabled at a time. The default
+# is 'default'. The 'yaml' or 'debug' stdout callback plugins are easier to read.
+#
+#stdout_callback = default
+#stdout_callback = yaml
+#stdout_callback = debug
+#stdout_callback = anstomlog
+cfg_stdout_callback: anstomlog
+#
+# Ansible ships with some plugins that require enabling
+# this is done to avoid running all of a type by default.
+# These setting lists those that you want enabled for your system.
+# Custom plugins should not need this unless plugin author disables them
+# by default.
+#
+# Enable callback plugins, they can output to stdout but cannot be 'stdout' type.
+#callback_enabled = timer, mail
+cfg_callback_enabled:
+  - timer
+  - profile_task
+  - profile_roles
+  - counter_enabled
+#
+# By default, ansible-playbook will display "Skipping [host]" if it determines a task
+# should not be run on a host. Set this to "False" if you don't want to see these "Skipping"
+# messages. NOTE: the task header will still be shown regardless of whether or not the
+# task is skipped.
+cfg_display_skipped_hosts: True
 #
 # set plugin path directories here
 #
@@ -121,7 +165,18 @@ install_plugins:
     file: callbacks/anstomlog.py
     type: callback
     origen: git
+    version: v1.1.0
     source: https://github.com/octplane/ansible_stdout_compact_logger.git
+#
+# Roles to be installed
+#
+install_roles:
+  - name: tonipamies.vim
+    origen: remote_compress
+    source: https://github.com/tonipamies/ansible-role-vim/archive/v1.0.4.tar.gz
+
+install_custom_roles: []
+
 #
 # All of these packages are installed via pip
 #

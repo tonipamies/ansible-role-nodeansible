@@ -37,10 +37,16 @@ module_utils     = {% for path in cfg_module_utils %}
 {% endif %}
 #remote_tmp      = ~/.ansible/tmp
 #local_tmp       = ~/.ansible/tmp
+#plugin_filters_cfg = /etc/ansible/plugin_filters.yml
 #forks           = 5
-#poll_interval   = 0.001
+#poll_interval   = 15
+#sudo_user       = root
+#ask_sudo_pass   = True
 #ask_pass        = False
 #transport       = smart
+#remote_port     = 22
+#module_lang     = C
+#module_set_locale = False
 
 # Plays will gather facts by default, which contain information about
 # the remote system.
@@ -144,7 +150,15 @@ stdout_callback = {{ cfg_stdout_callback }}
 # by default.
 #
 # Enable callback plugins, they can output to stdout but cannot be 'stdout' type.
+{% if cfg_callback_enabled is defined %}
+callback_enabled = {% for plugin in cfg_callback_enabled %}
+{{ plugin }}
+{%- if not loop.last %},{% endif %}
+{% endfor %}
+
+{% else %}
 #callback_enabled = timer, mail
+{% endif %}
 
 # Determine whether includes in tasks and handlers are "static" by
 # default. As of 2.0, includes are dynamic by default. Setting these
@@ -214,7 +228,11 @@ stdout_callback = {{ cfg_stdout_callback }}
 # messages. NOTE: the task header will still be shown regardless of whether or not the
 # task is skipped.
 #
-#display_skipped_hosts = True
+{% if cfg_display_skipped_hosts is defined and cfg_display_skipped_hosts %}
+display_skipped_hosts = True
+{% else %}
+display_skipped_hosts = False
+{% endif %}
 
 # By default, if a task in a playbook does not include a name: field then
 # ansible-playbook will construct a header that includes the task's action but

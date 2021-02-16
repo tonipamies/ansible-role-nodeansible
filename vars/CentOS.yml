@@ -17,8 +17,8 @@ ansible_pip_packages:
   - name: 'ansible-base and ansible'
     install: true
     packages:
-      - ansible-base
       - ansible
+      - ansible-base
   - name: 'ansible-lint'
     install: "{{ install_ansible_lint | default(false) }}"
     packages:

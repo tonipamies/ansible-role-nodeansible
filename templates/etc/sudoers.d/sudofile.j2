@@ -1,0 +1,12 @@
+#
+{{ ansible_managed | comment }}
+
+{% for i in users %}
+{% if i.sudoer is defined and i.sudoer %}
+{% if i.sudo_nopasswd is defined and i.sudo_nopasswd %}
+{{ i.name }} ALL=(ALL) NOPASSWD: ALL
+{% else %}
+{{ i.name }} ALL=(ALL) ALL
+{% endif %}
+{% endif %}
+{% endfor %}

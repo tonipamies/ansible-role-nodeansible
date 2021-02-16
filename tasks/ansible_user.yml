@@ -1,0 +1,115 @@
+# file: roles/nodeansible/ansible_user.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+#
+# Creates ansible group
+#
+- name: GROUP | Adds ansible group to the system
+  group:
+    name: "{{ custom_ansible_group.name }}"
+    gid: "{{ custom_ansible_group.gid }}"
+    system: "{{ custom_ansible_group.system | default('no') }}"
+    state: present
+  when:
+    - custom_ansible_group is defined
+
+#
+# Creates ansible user
+#
+- name: USER | Adds ansible user to the system
+  user:
+    name: "{{ custom_ansible_user.name }}"
+    uid: "{{ custom_ansible_user.uid | default(omit) }}"
+    group: "{{ custom_ansible_user.group | default(custom_ansible_group.name) | default(omit) }}"
+    shell: "{{ custom_ansible_user.shell | default('/bin/bash') }}"
+    comment: "{{ custom_ansible_user.comment | default('') }}"
+    groups: "{{ custom_ansible_user.groups | default('') }}"
+    home: "{{ custom_ansible_user.home | default(omit) }}"
+    createhome: "{{ custom_ansible_user.createhome | default('yes') }}"
+    system: "{{ custom_ansible_user.system | default('no') }}"
+    state: present
+    password: "{% if custom_ansible_user.password is defined %}{{ custom_ansible_user.password }}{% elif custom_ansible_user.clear_password is defined%}{{ custom_ansible_user.clear_password | password_hash('sha512') }}{% else %}{{ omit }}{% endif %}"
+    update_password: "{{ custom_ansible_user.update_password | default(omit) }}"
+  no_log: true
+
+#
+# Installs SSH authorized public keys for the ansible user
+#
+- name: AUTHORIZED_KEY | Installs SSH authorized public keys for the ansible user
+  authorized_key:
+    comment: "{{ item.comment | default('') }}"
+    user: "{{ custom_ansible_user.name }}"
+    state: present
+    key: "{{ item.key }}"
+    key_options: "{% if item.from is defined %}from=\"{% for i in item.from %}{{ i }}{%- if not loop.last %},{% endif %}{% endfor %}\",{% endif %}{% if item.no_agent_forwarding is defined and item.no_agent_forwarding %}no-agent-forwarding,{% endif %}{% if item.no_port_forwarding is defined and item.no_port_forwarding %}no-port-forwarding,{% endif %}{% if item.no_x11_forwarding is defined and item.no_x11_forwarding %}no-x11-forwarding,{% endif %}"
+  loop: "{{ custom_ansible_user.authorized_keys }}"
+  loop_control:
+    label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+  when:
+    - custom_ansible_user.authorized_keys is defined
+
+#
+# Installs sudo
+#
+- name: INSTALL_PKG | Installs sudo
+  package:
+    name: sudo
+    state: present
+  when:
+    - custom_ansible_user.sudoer is defined
+    - custom_ansible_user.sudoer
+
+#
+# Creates sudoers file for the ansible user
+#
+- name: TEMPLATE | Creates sudoers file for ansible user
+  template:
+    src: etc/sudoers.d/sudofile.j2
+    dest: "/etc/sudoers.d/{{ custom_ansible_user.sudo_file | default('ansible') }}"
+    mode: 0440
+    backup: yes
+    owner: root
+    group: root
+    validate: '/usr/sbin/visudo -cf %s'
+  vars:
+    users:
+      - name: "{{ custom_ansible_user.name }}"
+        sudoer: true
+        sudo_nopasswd: "{{ custom_ansible_user.sudo_nopasswd | default('no') }}"
+  when:
+    - custom_ansible_user.sudoer is defined
+    - custom_ansible_user.sudoer
+
+#
+# Creates SSH Key pair
+#
+- name: CREATE_KEY | Creates SSH Key pair
+  openssh_keypair:
+    path: "{{ custom_ansible_user.home }}/.ssh/id_rsa"
+    owner: "{{ custom_ansible_user.name }}"
+    group: "{{ custom_ansible_user.group | default(custom_ansible_group.name) | default(omit) }}"
+    mode: 0600
+    comment: "{{ custom_ansible_user.comment | default(omit) }}"
+  when:
+    - custom_ansible_user.create_ssh_keypair is defined
+    - custom_ansible_user.create_ssh_keypair
+
+#
+# Copy SSH private & public key
+#
+- name: COPY_KEY | Ensure private key and public one are present
+  copy:
+    src: "keys/{{ item }}"
+    dest: "{{ custom_ansible_user.home }}/.ssh/{{ item }}"
+    owner: "{{ custom_ansible_user.name }}"
+    group: "{{ custom_ansible_user.group | default(custom_ansible_group.name) | default(omit) }}"
+    mode: 0600
+    backup: no
+    decrypt: yes
+  loop:
+    - id_rsa.pub
+    - id_rsa
+  when:
+    - custom_ansible_user.copy_rsa_keys is defined
+    - custom_ansible_user.copy_rsa_keys

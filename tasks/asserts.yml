@@ -3,6 +3,550 @@
 #
 ---
 #
+# Test if create_ansible_user is defined and has a correct value
+#
+- name: CHECK VAR | Checks if create_ansible_user is defined and has a correct value
+  assert:
+    that:
+      - create_ansible_user is defined
+      - create_ansible_user
+          | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'create_ansible_user' must be defined and
+
+      must be a boolean variable
+#
+# Test if validate_password_strength is defined and has a correct value
+#
+- name: CHECK VAR | Checks if validate_password_strength is defined and has a correct value
+  assert:
+    that:
+      - validate_password_strength is defined
+      - validate_password_strength
+          | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'validate_password_strength' must be defined and
+
+      must be a boolean variable
+#
+# Checks if ansible user's vars are set correctly
+#
+- name: CHECK VAR | Checks if ansible user's vars are set correctly
+  block:
+    #
+    # Checks if custom_ansible_group is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_group is set correctly
+      assert:
+        that:
+          - custom_ansible_group is iterable
+        quiet: yes
+      when:
+        - custom_ansible_group is defined
+    #
+    # Checks if item custom_ansible_group.name is set correctly
+    #
+    - name: CHECK VAR | Checks if item custom_ansible_group.name is set correctly
+      assert:
+        that:
+          - custom_ansible_group.name is string
+          - custom_ansible_group.name | length > 0
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_group.name' must not be empty and should be
+
+          a string.
+      when:
+        - custom_ansible_group is defined
+    #
+    # Checks if item custom_ansible_group.gid is set correctly
+    #
+    - name: CHECK VAR | Checks if item custom_ansible_group.gid is set correctly
+      assert:
+        that:
+          - custom_ansible_group.gid is defined
+          - custom_ansible_group.gid is number
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_group.gid' must not be empty and should be
+
+          a number greather than {{ gid_ansible_user_gt | default( 999 ) | int }}.
+
+          If you want a number equal or less than {{ custom_ansible_group.gid | default( 999 ) | int }} please set
+
+          it into the variable gid_ansible_user_gt in the file
+
+          defaults/main.yml or set it in the playbook.
+      when:
+        - custom_ansible_group is defined
+
+    - name: CHECK VAR | Checks if item custom_ansible_group.gid is set correctly
+      assert:
+        that:
+          - custom_ansible_group.gid > gid_ansible_user_gt | default( 999 ) | int
+          - custom_ansible_group.gid > 0
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_group.gid' must not be empty and should be
+
+          a number greather than {{ gid_ansible_user_gt | default( 999 ) | int }} and never less than 1
+
+          If you want a number equal or less than {{ custom_ansible_group.gid | default( 999 ) | int }} please set
+
+          the variable gid_ansible_user_gt to {{ custom_ansible_group.gid | default( 999 ) | int - 1 }} in the
+
+          file defaults/main.yml or set it in the playbook.
+      when:
+        - custom_ansible_group is defined
+    #
+    # Checks if custom_ansible_user is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user is set correctly
+      assert:
+        that:
+          - custom_ansible_user is defined
+          - custom_ansible_user is iterable
+        quiet: yes
+    #
+    # Checks if item custom_ansible_user.name is set correctly
+    #
+    - name: CHECK VAR | Checks if item custom_ansible_user.name is set correctly
+      assert:
+        that:
+          - custom_ansible_user.name is string
+          - custom_ansible_user.name | length > 0
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_user.name' must not be empty and should be
+
+          a string.
+    #
+    # Checks if item custom_ansible_user.uid is set correctly
+    #
+    - name: CHECK VAR | Checks if item custom_ansible_user.uid is set correctly
+      assert:
+        that:
+          - custom_ansible_user.uid is number
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_user.uid' must not be empty and should be
+
+          a number greather than {{ uid_ansible_user_gt | default( 999 ) | int }}.
+
+          If you want a number equal or less than {{ uid_ansible_user_gt | default( 999 ) | int }} please set
+
+          it into the variable uid_ansible_user_gt in the file
+
+          defaults/main.yml or set it in the playbook.
+      when:
+        - custom_ansible_user.uid is defined
+
+    - name: CHECK VAR | Checks if item custom_ansible_user.uid is set correctly
+      assert:
+        that:
+          - custom_ansible_user.uid > uid_ansible_user_gt | default( 999 ) | int
+          - custom_ansible_user.uid > 0
+        quiet: yes
+        fail_msg: >
+          When 'create_ansible_user' is true, the item
+
+          'custom_ansible_user.uid' must not be empty and should be
+
+          a number greather than {{ uid_ansible_user_gt | default( 999 ) | int }} and never less than 1
+
+          If you want a number equal or less than {{ custom_ansible_user.uid | default( 999 ) | int }} please set
+
+          the variable uid_ansible_user_gt to {{ custom_ansible_user.uid | default( 999 ) | int - 1 }} in the
+
+          file defaults/main.yml or set it in the playbook.
+      when:
+        - custom_ansible_user.uid is defined
+    #
+    # Test if custom_ansible_user.shell is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.shell is set correctly
+      assert:
+        that:
+          - custom_ansible_user.shell is string
+          - custom_ansible_user.shell | length > 0
+        quiet: yes
+        fail_msg: >
+          The item custom_ansible_user.shell must be a string
+      when:
+        - custom_ansible_user.shell is defined
+    #
+    # Test if custom_ansible_user.comment is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.comment is set correctly
+      assert:
+        that:
+          - custom_ansible_user.comment is string
+          - custom_ansible_user.comment | length > 0
+        quiet: yes
+        fail_msg: >
+          The item custom_ansible_user.comment must be a string
+      when:
+        - custom_ansible_user.comment is defined
+    #
+    # Test if custom_ansible_user.group is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.group is set correctly
+      assert:
+        that:
+          - custom_ansible_user.group is string
+          - custom_ansible_user.group | length > 0
+        quiet: yes
+        fail_msg: >
+          The item custom_ansible_user.group must be a string
+      when:
+        - custom_ansible_user.group is defined
+    #
+    # Test if custom_ansible_user.group is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.group is set correctly
+      assert:
+        that:
+          - custom_ansible_user.group == custom_ansible_group.name
+        quiet: yes
+        fail_msg: >
+          When you define custom_ansible_group,custom_ansible_user.group
+
+          must be equal to custom_ansible_group.name:
+
+          '{{ custom_ansible_group.name }}' != '{{ custom_ansible_user.group }}'
+      when:
+        - custom_ansible_user.group is defined
+        - custom_ansible_group.name is defined
+
+    #
+    # Tests that custom_ansible_user.sudoer has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.sudoer has a correct value
+      assert:
+        that:
+          - custom_ansible_user.sudoer | type_debug == 'bool'
+        quiet: yes
+        fail_msg: >
+          The item 'custom_ansible_user.sudoer' must be a boolean
+      when:
+        - custom_ansible_user.sudoer is defined
+    #
+    # Tests that custom_ansible_user.sudo_nopasswd has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.sudo_nopasswd has a correct value
+      assert:
+        that:
+          - custom_ansible_user.sudo_nopasswd | type_debug == 'bool'
+        quiet: yes
+        fail_msg: >
+          The item 'custom_ansible_user.sudo_nopasswd' must be a boolean
+      when:
+        - custom_ansible_user.sudo_nopasswd is defined
+    #
+    # Test if custom_ansible_user.sufo_file is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.sudo_file is set correctly
+      assert:
+        that:
+          - custom_ansible_user.sudo_file is string
+          - custom_ansible_user.sudo_file | length > 0
+        quiet: yes
+        fail_msg: >
+          The item custom_ansible_user.sudo_file must be a string
+      when:
+        - custom_ansible_user.sudo_file is defined
+    #
+    # Test if custom_ansible_user.home is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.home is set correctly
+      assert:
+        that:
+          - custom_ansible_user.home is defined
+          - custom_ansible_user.home is string
+          - custom_ansible_user.home | length > 0
+        quiet: yes
+        fail_msg: >
+          The item custom_ansible_user.home must be defined and
+
+          must be a string
+    #
+    # Test if custom_ansible_user.password or custom_ansible_user._clear_password
+    # is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.password is set correctly
+      fail:
+        msg: >
+
+          Ansible user password left blank. Please set a secure (encrypted)
+
+          custom password in the variable custom_ansible_user.password or set a
+
+          clear password (not recommended) in custom_ansible_user.clear_password.
+
+
+          You can generate an encrypted password with:
+
+            - Ansible ad-hoc command
+
+              {% raw %}ansible all -i localhost, -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"{% endraw %}
+
+
+            - The mkpasswd utility that is available on most Linux systems:
+
+              mkpasswd --method=sha-512
+
+          See: https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
+
+      when:
+        - ( custom_ansible_user.password is not defined and
+            custom_ansible_user.clear_password is not defined ) or
+          (  custom_ansible_user.password is defined and
+             custom_ansible_user.password | length == 0 and
+             custom_ansible_user.clear_password is defined and
+             custom_ansible_user.clear_password | length == 0 )
+
+    - name: CHECK VAR | Checks if custom_ansible_user.password is set correctly
+      fail:
+        msg: >
+          You can not set the variable custom_ansible_user.password and the
+
+          variable custom_ansible_user.clear_password at the same time.
+
+          The recommended setting is to use the variable custom_ansible_user.password
+
+          with a secure (encrypted) password.
+
+
+          You can generate an encrypted password with:
+
+            - Ansible ad-hoc command
+
+              {% raw %}ansible all -i localhost, -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"{% endraw %}
+
+
+            - The mkpasswd utility that is available on most Linux systems:
+
+              mkpasswd --method=sha-512
+
+          See: https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
+
+      when:
+        - custom_ansible_user.password is defined
+        - custom_ansible_user.clear_password is defined
+        - custom_ansible_user.password | length > 0
+        - custom_ansible_user.clear_password | length > 0
+
+    - name: CHECK VAR | Checks if custom_ansible_user.password is set correctly
+      fail:
+        msg: >
+          Invalid clear password, the password must be between 10 and 32
+
+          caracters long and must have at least:
+
+            - 2 uppercase letters
+            - 1 special case letter (!@#$&*)
+            - 2 digits
+            - 3 lowercase letters
+
+      when:
+        - validate_password_strength
+        - custom_ansible_user.clear_password is defined
+        - custom_ansible_user.clear_password | length > 0
+        - not custom_ansible_user.clear_password
+            | regex_search("^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{10,32}$")
+    #
+    # Tests that custom_ansible_user.update_password has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.update_password has a correct value
+      assert:
+        that:
+          - custom_ansible_user.update_password is string
+          - custom_ansible_user.update_password in valid_update_password
+        quiet: yes
+        fail_msg: >
+          The item 'custom_ansible_user.update_password' must be one of:
+
+          {{ valid_update_password | to_nice_yaml }}
+          got: {{ custom_ansible_user.update_password }}
+      vars:
+        - valid_update_password:
+          - on_create
+          - always
+      when:
+        - custom_ansible_user.update_password is defined
+    #
+    # Tests that custom_ansible_user.create_ssh_keypair has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.create_ssh_keypair has a correct value
+      assert:
+        that:
+          - custom_ansible_user.create_ssh_keypair | type_debug == 'bool'
+        quiet: yes
+        fail_msg: >
+          The item 'custom_ansible_user.create_ssh_keypair' must be a boolean
+      when:
+        - custom_ansible_user.create_ssh_keypair is defined
+    #
+    # Tests that custom_ansible_user.copy_rsa_keys has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.copy_rsa_keys has a correct value
+      assert:
+        that:
+          - custom_ansible_user.copy_rsa_keys | type_debug == 'bool'
+        quiet: yes
+        fail_msg: >
+          The item 'custom_ansible_user.copy_rsa_keys' must be a boolean
+      when:
+        - custom_ansible_user.copy_rsa_keys is defined
+    #
+    # Tests that custom_ansible_user.copy_rsa_keys has a correct value
+    #
+    - name: CHECK VAR | Checks that custom_ansible_user.copy_rsa_keys has a correct value
+      fail:
+        msg: >
+          You cannot set 'custom_ansible_user.copy_rsa_keys' and
+
+          'custom_ansible_user.create_ssh_keypair' true at the same time.
+      when:
+        - custom_ansible_user.copy_rsa_keys is defined
+        - custom_ansible_user.create_ssh_keypair is defined
+        - custom_ansible_user.copy_rsa_keys
+        - custom_ansible_user.create_ssh_keypair
+    #
+    # Checks if custom_ansible_user.authorized_keys is set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys is set correctly
+      assert:
+        that:
+          - custom_ansible_user.authorized_keys is iterable
+        quiet: yes
+      when:
+        - custom_ansible_user.authorized_keys is defined
+    #
+    # Checks if custom_ansible_user.authorized_keys.keys are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.keys are set correctly
+      assert:
+        that:
+          - item.key is defined
+          - item.key is string
+          - item.key | length >0
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+    #
+    # Checks if custom_ansible_user.authorized_keys.from are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.from are set correctly
+      assert:
+        that:
+          - item.from is iterable
+          - item.from | length >0
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+        - item.from is defined
+    #
+    # Checks if items in custom_ansible_user.authorized_keys.from are set correctly
+    #
+    - name: CHECK VAR | Checks if items in custom_ansible_user.authorized_keys.from are set correctly
+      assert:
+        that:
+          - item.1 is string
+          - item.1 | length >0
+        quiet: yes
+      loop: "{{ q('subelements', custom_ansible_user.authorized_keys, 'from', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{% if item.0.comment is defined %}{{ item.0.comment }}{% else %}{{ item.0.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+    #
+    # Checks if custom_ansible_user.authorized_keys.comment are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.comment are set correctly
+      assert:
+        that:
+          - item.comment is string
+          - item.comment | length >0
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+        - item.comment is defined
+    #
+    # Checks if custom_ansible_user.authorized_keys.no_agent_forwarding are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.no_agent_forwarding are set correctly
+      assert:
+        that:
+          - item.no_agent_forwarding | type_debug == 'bool'
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+        - item.no_agent_forwarding is defined
+    #
+    # Checks if custom_ansible_user.authorized_keys.no_port_forwarding are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.no_port_forwarding are set correctly
+      assert:
+        that:
+          - item.no_port_forwarding | type_debug == 'bool'
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+        - item.no_port_forwarding is defined
+    #
+    # Checks if custom_ansible_user.authorized_keys.no_x11_forwarding are set correctly
+    #
+    - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.no_x11_forwarding are set correctly
+      assert:
+        that:
+          - item.no_x11_forwarding | type_debug == 'bool'
+        quiet: yes
+      loop: "{{ custom_ansible_user.authorized_keys }}"
+      loop_control:
+        label: "{% if item.comment is defined %}{{ item.comment }}{% else %}{{ item.key }}{% endif %}"
+      when:
+        - custom_ansible_user.authorized_keys is defined
+        - custom_ansible_user.authorized_keys | length > 0
+        - item.no_x11_forwarding is defined
+
+  when:
+    - create_ansible_user is defined
+    - create_ansible_user
+#
 # Test if ansible_base_packages is set correctly
 #
 - name: CHECK VAR | Checks if ansible_base_packages is set correctly
@@ -21,7 +565,7 @@
       - item is string
     quiet: yes
     fail_msg: >
-      Item {{ item }} is not string
+      The item {{ item }} is not string
   loop: "{{ ansible_base_packages }}"
 
 #
@@ -33,7 +577,10 @@
       - cfg_hosts_inventory is defined
       - cfg_hosts_inventory is string
     quiet: yes
-    fail_msg: "The variable 'cfg_hosts_inventory' must be defined and must be a string"
+    fail_msg: >
+      The variable 'cfg_hosts_inventory' must be defined and
+
+      must be a string
 
 #
 # Test if backup_config_files is defined and has a correct value
@@ -45,7 +592,10 @@
       - backup_config_files
           | type_debug == 'bool'
     quiet: yes
-    fail_msg: "The variable 'backup_config_files' must be defined and must be a boolean variable"
+    fail_msg: >
+      The variable 'backup_config_files' must be defined and
+
+      must be a boolean variable
 #
 # Test if cfg_library is set correctly
 #
@@ -95,7 +645,9 @@
       - cfg_gathering in valid_gathering
     quiet: yes
     fail_msg: >
-      "The variable 'cfg_gathering' must be defined, must be a string and must contain one of:"
+      The variable 'cfg_gathering' must be defined, must be a string
+
+      and must contain one of:
 
       {{ valid_gathering | to_nice_yaml }}
   vars:
@@ -123,7 +675,9 @@
       - item in valid_gather_subset
     quiet: yes
     fail_msg: >
-      "The items of 'cfg_gather_subset' must be defined, must be a string and must contain one of:"
+      The items of 'cfg_gather_subset' must be defined, must be
+
+      a string and must contain one of:
 
       {{ valid_gather_subset | to_nice_yaml }}
   loop: "{{ cfg_gather_subset }}"
@@ -148,7 +702,8 @@
     that:
       - cfg_gather_timeout is defined
       - cfg_gather_timeout is number
-    fail_msg: "The variable 'cfg_gather_timeout' must be defined and must be a number"
+    fail_msg: >
+      The variable 'cfg_gather_timeout' must be defined and must be a number
     quiet: yes
 #
 # Test if cfg_inject_facts_as_vars is defined and has a correct value
@@ -160,7 +715,10 @@
       - cfg_inject_facts_as_vars
           | type_debug == 'bool'
     quiet: yes
-    fail_msg: "The variable 'cfg_inject_facts_as_vars' must be defined and must be a boolean variable"
+    fail_msg: >
+      The variable 'cfg_inject_facts_as_vars' must be defined
+
+      and must be a boolean variable
 #
 # Test if cfg_stdout_callback are set correctly
 #
@@ -169,18 +727,52 @@
     that:
       - cfg_stdout_callback is defined
       - cfg_stdout_callback is string
-      - cfg_stdout_callback in valid_stdout_callback
     quiet: yes
     fail_msg: >
-      "The variable 'cfg_stdout_callback' must be defined, must be a string and must contain one of:"
+      The variable 'cfg_stdout_callback' must be defined and
 
-      {{ valid_stdout_callback | to_nice_yaml }}
-  vars:
-    - valid_stdout_callback:
-      - default
-      - yaml
-      - debug
-      - astomlog
+      must be a string
+#
+# Test if cfg_callback_enabled is set correctly
+#
+- name: CHECK VAR | Checks if cfg_callback_enabled is set correctly
+  assert:
+    that:
+      - cfg_callback_enabled is defined
+      - cfg_callback_enabled is iterable
+    quiet: yes
+  when:
+    - cfg_callback_enabled is defined
+#
+# Test if items in cfg_callback_enabled are set correctly
+#
+- name: CHECK VAR | Checks if items in cfg_callback_enabled are set correctly
+  assert:
+    that:
+      - item is defined
+      - item is string
+    quiet: yes
+    fail_msg: >
+      The items of 'cfg_callback_enabled' must be defined and
+
+      must be a string
+  loop: "{{ cfg_callback_enabled }}"
+  when:
+    - cfg_callback_enabled is defined
+#
+# Test if cfg_display_skipped_hosts is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_display_skipped_hosts is defined and has a correct value
+  assert:
+    that:
+      - cfg_display_skipped_hosts is defined
+      - cfg_display_skipped_hosts
+          | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_display_skipped_hosts' must be defined
+
+      and must be a boolean variable
 #
 # Test if cfg_roles_path is set correctly
 #
@@ -447,85 +1039,3 @@
       - item is string
     quiet: yes
   loop: "{{ cfg_strategy_plugins }}"
-#
-# Minimal Asserts for tonipamies.vim role
-#
-# Test if vim_for_sysadmins is defined and has a correct value
-#
-- name: CHECK VAR | Checks if vim_for_sysadmins is defined and has a correct value
-  assert:
-    that:
-      - vim_for_sysadmins is defined
-      - vim_for_sysadmins
-          | type_debug == 'bool'
-    quiet: yes
-    fail_msg: "The variable 'vim_for_sysadmins' must be defined and must be a boolean variable"
-#
-# Checks that vim_color is a string
-#
-- name: CHECK VAR | Checks that vim_color is a string
-  assert:
-    that:
-      - vim_color is defined
-      - vim_color is string
-    quiet: yes
-    fail_msg: >
-      "The variable 'vim_color' must be defined"
-  when:
-    - vim_for_sysadmins
-#
-# Checks that vim_airline_theme is a string
-#
-- name: CHECK VAR | Checks that vim_airline_theme is a string
-  assert:
-    that:
-      - vim_airline_theme is defined
-      - vim_airline_theme is string
-    quiet: yes
-    fail_msg: >
-      "The variable 'vim_airline_theme' must be defined"
-  when:
-    - vim_for_sysadmins
-#
-# Test if vim_custom_pathogen_plugins is set correctly
-#
-- name: CHECK VAR | Checks if vim_custom_pathogen_plugins is set correctly
-  assert:
-    that:
-      - vim_custom_pathogen_plugins is defined
-      - vim_custom_pathogen_plugins is iterable
-    quiet: yes
-  when:
-    - vim_for_sysadmins
-    - vim_custom_pathogen_plugins is defined
-#
-# Test if items in vim_custom_pathogen_plugins are set correctly
-#
-- name: CHECK VAR | Checks if items in vim_custom_pathogen_plugins are set correctly
-  assert:
-    that:
-      - item.name is defined
-      - item.name is string
-      - item.url is defined
-      - item.url is string
-      - item.enabled is defined
-      - item.enabled
-          | type_debug == 'bool'
-    quiet: yes
-  loop: "{{ vim_custom_pathogen_plugins }}"
-  when:
-    - vim_for_sysadmins
-    - custom_pathogen_plugins is defined
-#
-# Test if vim_backup_config_files is defined and has a correct value
-#
-- name: CHECK VAR | Checks if vim_backup_config_files is defined and has a correct value
-  assert:
-    that:
-      - vim_backup_config_files is defined
-      - vim_backup_config_files
-          | type_debug == 'bool'
-    quiet: yes
-    fail_msg: "The variable 'vim_backup_config_files' must be defined and must be a boolean variable"
-  when:
-    - vim_for_sysadmins
