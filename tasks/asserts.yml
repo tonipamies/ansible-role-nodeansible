@@ -552,6 +552,7 @@
     that:
       - ansible_base_packages is defined
       - ansible_base_packages | type_debug == 'list'
+      - ansible_base_packages | length > 0
     quiet: yes
 
 #

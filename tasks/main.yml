@@ -586,8 +586,9 @@
     dest: "{{ cfg_callback_plugins | first | default('/usr/share/ansible/plugins/callback') }}"
     remote_src: yes
     backup: no
-    mode: '0644'
-  changed_when: false
+    mode: 0755
+    owner: root
+    group: root
   loop: "{{ install_plugins }}"
   when:
     - install_plugins is defined
@@ -636,7 +637,7 @@
     remote_src: yes
     owner: root
     group: root
-  changed_when: false
+    mode: 0755
   loop: "{{ install_roles }}"
   when:
     - install_roles is defined
@@ -661,7 +662,7 @@
     remote_src: yes
     owner: root
     group: root
-  changed_when: false
+    mode: 0755
   loop: "{{ install_custom_roles }}"
   when:
     - install_custom_roles is defined
