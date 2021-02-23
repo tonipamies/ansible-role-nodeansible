@@ -3,6 +3,7 @@ exclude_paths:
   - .github/
   - .git/
   - .pre-commit-config.yaml
+  - molecule/default/molecule.yml
 # parseable: true
 # quiet: true
 # verbosity: 1

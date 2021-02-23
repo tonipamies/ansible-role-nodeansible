@@ -181,7 +181,13 @@ callback_enabled = {% for plugin in cfg_callback_enabled %}
 #remote_user = root
 
 # Logging is off by default unless this path is defined.
+{% if cfg_logging is defined and cfg_logging %}
+{% if cfg_log_path is defined %}
+log_path = {{ cfg_log_path }}
+{% endif %}
+{% else %}
 #log_path = /var/log/ansible.log
+{% endif %}
 
 # Default module to use when running ad-hoc commands
 #module_name = command
@@ -196,7 +202,11 @@ callback_enabled = {% for plugin in cfg_callback_enabled %}
 # scope. To prevent this, set the following option to True, and only
 # tasks and handlers within the role will see the variables there
 #
-#private_role_vars = False
+{% if cfg_private_role_vars is defined and cfg_private_role_vars %}
+private_role_vars = True
+{% else %}
+private_role_vars = False
+{% endif %}
 
 # List any Jinja2 extensions to enable here.
 #jinja2_extensions = jinja2.ext.do,jinja2.ext.i18n
@@ -210,7 +220,11 @@ callback_enabled = {% for plugin in cfg_callback_enabled %}
 # specifying --vault-password-file on the command line. This can also be
 # an executable script that returns the vault password to stdout.
 #
+{% if cfg_vault_password_file is defined and cfg_vault_password_file|length>0 %}
+vault_password_file = {{ cfg_vault_password_file }}
+{% else %}
 #vault_password_file = /path/to/vault_password_file
+{% endif %}
 
 # Format of string {% raw %}{{ ansible_managed }}{% endraw %} available within Jinja2
 # templates indicates to users editing templates files will be replaced.
@@ -221,7 +235,11 @@ callback_enabled = {% for plugin in cfg_callback_enabled %}
 # {file}, {host}, {uid}, and the timestamp can all interfere with idempotence
 # in some situations so the default is a static string:
 #
+{% if cfg_ansible_managed is defined %}
+ansible_managed = {{ cfg_ansible_managed }}
+{% else %}
 #ansible_managed = Ansible managed
+{% endif %}
 
 # By default, ansible-playbook will display "Skipping [host]" if it determines a task
 # should not be run on a host. Set this to "False" if you don't want to see these "Skipping"
@@ -249,20 +267,32 @@ display_skipped_hosts = False
 # Jinja2 variables that are not set in templates or action lines. Uncomment this line
 # to change this behavior.
 #
-#error_on_undefined_vars = False
+{% if cfg_error_on_undefined_vars is defined and cfg_error_on_undefined_vars %}
+error_on_undefined_vars = True
+{% else %}
+error_on_undefined_vars = False
+{% endif %}
 
 # Ansible may display warnings based on the configuration of the
 # system running ansible itself. This may include warnings about 3rd party packages or
 # other conditions that should be resolved if possible.
 # To disable these warnings, set the following value to False:
 #
-#system_warnings = True
+{% if cfg_system_warnings is defined and cfg_system_warnings %}
+system_warnings = True
+{% else %}
+system_warnings = False
+{% endif %}
 
 # Ansible may display deprecation warnings for language
 # features that should no longer be used and will be removed in future versions.
 # To disable these warnings, set the following value to False:
 #
-#deprecation_warnings = True
+{% if cfg_deprecation_warnings is defined and cfg_deprecation_warnings %}
+deprecation_warnings = True
+{% else %}
+deprecation_warnings = False
+{% endif %}
 
 # Ansible can optionally warn when usage of the shell and
 # command module appear to be simplified by using a default Ansible module
@@ -271,7 +301,11 @@ display_skipped_hosts = False
 # parameter string. This will for example suggest using the git module
 # instead of shelling out to the git command.
 #
-#command_warnings = False
+{% if cfg_command_warnings is defined and cfg_command_warnings %}
+command_warnings = True
+{% else %}
+command_warnings = False
+{% endif %}
 
 # set plugin path directories here, separate with colons
 {% if cfg_action_plugins is defined %}
@@ -385,14 +419,21 @@ strategy_plugins = {% for path in cfg_strategy_plugins %}
 
 
 # Ansible will use the 'linear' strategy but you may want to try another one.
+{% if cfg_strategy is defined %}
+strategy = {{ cfg_strategy }}
+{% else %}
 #strategy = linear
+{% endif %}
 
 # By default, callbacks are not loaded for /bin/ansible. Enable this if you
 # want, for example, a notification or logging callback to also apply to
 # /bin/ansible runs
 #
-#bin_ansible_callbacks = False
-
+{% if cfg_bin_ansible_callbacks is defined and  cfg_bin_ansible_callbacks %}
+bin_ansible_callbacks = True
+{% else %}
+bin_ansible_callbacks = False
+{% endif %}
 
 # Don't like cows?  that's unfortunate.
 # set to 1 if you don't want cowsay support or export ANSIBLE_NOCOWS=1
@@ -417,7 +458,9 @@ strategy_plugins = {% for path in cfg_strategy_plugins %}
 # Don't like colors either?
 # set to 1 if you don't want colors, or export ANSIBLE_NOCOLOR=1
 #
-#nocolor = 1
+{% if cfg_nocolor is defined and cfg_nocolor %}
+nocolor = 1
+{% endif %}
 
 # If set to a persistent type (not 'memory', for example 'redis') fact values
 # from previous runs in Ansible will be stored. This may be useful when
@@ -425,27 +468,75 @@ strategy_plugins = {% for path in cfg_strategy_plugins %}
 # without having to talk to them in the same playbook run to get their
 # current IP information.
 #
+{% if cfg_fact_caching is defined %}
+fact_caching = {{ cfg_fact_caching }}
+{% else %}
 #fact_caching = memory
+{% endif %}
 
 # This option tells Ansible where to cache facts. The value is plugin dependent.
 # For the jsonfile plugin, it should be a path to a local directory.
 # For the redis plugin, the value is a host:port:database triplet: fact_caching_connection = localhost:6379:0
 #
+{% if cfg_fact_caching is defined %}
+{% if cfg_fact_caching_prefix is defined and cfg_fact_caching_prefix | length > 0 %}
+fact_caching_prefix = {{ cfg_fact_caching_prefix }}
+{% endif %}
+{% if cfg_fact_caching_timeout is defined %}
+fact_caching_timeout = {{ cfg_fact_caching_timeout }}
+{% endif %}
+{% if cfg_fact_caching in [ 'jsonfile', 'pickle', 'yaml' ] %}
+fact_caching_connection = {{ cfg_fact_caching_path }}
+{% elif cfg_fact_caching in [ 'mongodb' ] %}
+fact_caching_connection = "{{ cfg_fact_caching_connect_uri }}"
+{% elif cfg_fact_caching in [ 'memcached' ] %}
+fact_caching_connection = [{% for host in cfg_fact_caching_connect_uri %}
+'{{ host }}'
+{%- if not loop.last %},{% endif %}
+{% endfor %}]
+{% else %}
+fact_caching_connection = "{{ cfg_fact_caching_connect_uri }}"
+{% if cfg_fact_caching_redis_keyset_name is defined and cfg_fact_caching_prefix | length > 0 %}
+fact_caching_redis_keyset_name = {{ cfg_fact_caching_redis_keyset_name }}
+{% endif %}
+{% if cfg_fact_caching_redis_sentinel is defined and cfg_fact_caching_redis_sentinel | length > 0 %}
+fact_caching_redis_sentinel = {{ cfg_fact_caching_redis_sentinel }}
+{% endif %}
+{% endif %}
+{% else %}
 #fact_caching_connection=/tmp
+{% endif %}
 
 # retry files
 # When a playbook fails a .retry file can be created that will be placed in ~/
 # You can enable this feature by setting retry_files_enabled to True
 # and you can change the location of the files by setting retry_files_save_path
 #
-#retry_files_enabled = False
+{% if cfg_retry_files_enabled is defined and cfg_retry_files_enabled %}
+retry_files_enabled = True
+{% if cfg_retry_files_save_path is defined %}
+retry_files_save_path = {{ cfg_retry_files_save_path }}
+{% else %}
+retry_files_save_path = ~/.ansible-retry
+{% endif %}
+{% else %}
+retry_files_enabled = False
 #retry_files_save_path = ~/.ansible-retry
+{% endif %}
 
 # prevents logging of task data, off by default
-#no_log = False
+{% if cfg_no_log is defined and cfg_no_log %}
+no_log = True
+{% else %}
+no_log = False
+{% endif %}
 
 # prevents logging of tasks, but only on the targets, data is still logged on the master/controller
-#no_target_syslog = False
+{% if cfg_no_target_syslog is defined and cfg_no_target_syslog %}
+no_target_syslog = True
+{% else %}
+no_target_syslog = False
+{% endif %}
 
 # Controls whether Ansible will raise an error or warning if a task has no
 # choice but to create world readable temporary files to execute a module on
@@ -472,12 +563,24 @@ strategy_plugins = {% for path in cfg_strategy_plugins %}
 #max_diff_size = 104448
 
 # Controls showing custom stats at the end, off by default
-#show_custom_stats = False
+{% if cfg_show_custom_stats is defined and cfg_show_custom_stats %}
+show_custom_stats = True
+{% else %}
+show_custom_stats = False
+{% endif %}
 
 # Controls which files to ignore when using a directory as inventory with
 # possibly multiple sources (both static and dynamic)
 #
+{% if cfg_inventory_ignore_extensions is defined %}
+inventory_ignore_extensions = {% for extension in cfg_inventory_ignore_extensions %}
+{{ extension }}
+{%- if not loop.last %}, {% endif %}
+{% endfor %}
+
+{% else %}
 #inventory_ignore_extensions = ~, .orig, .bak, .ini, .cfg, .retry, .pyc, .pyo
+{% endif %}
 
 # This family of modules use an alternative execution path optimized for network appliances
 # only update this setting if you know how this works, otherwise it can break module execution
@@ -500,14 +603,33 @@ strategy_plugins = {% for path in cfg_strategy_plugins %}
 #enable_plugins = host_list, script, auto, yaml, ini, toml
 
 # Ignore these extensions when parsing a directory as inventory source
+{% if cfg_inventory_ignore_extensions is defined and cfg_inventory_ignore_extensions | length > 0%}
+ignore_extensions = {% for extension in cfg_inventory_ignore_extensions %}
+{{ extension }}
+{%- if not loop.last %}, {% endif %}
+{% endfor %}
+
+{% else %}
 #ignore_extensions = .pyc, .pyo, .swp, .bak, ~, .rpm, .md, .txt, ~, .orig, .ini, .cfg, .retry
+{% endif %}
 
 # ignore files matching these patterns when parsing a directory as inventory source
+{% if cfg_inventory_ignore_patterns is defined and cfg_inventory_ignore_patterns | length > 0 %}
+ignore_patterns = {% for pattern in cfg_inventory_ignore_patterns %}
+{{ pattern }}
+{%- if not loop.last %}, {% endif %}
+{% endfor %}
+
+{% else %}
 #ignore_patterns=
+{% endif %}
 
 # If 'True' unparsed inventory sources become fatal errors, otherwise they are warnings.
-#unparsed_is_failed = False
-
+{% if cfg_inventory_unparsed_is_failed is defined and cfg_inventory_unparsed_is_failed %}
+unparsed_is_failed = True
+{% else %}
+unparsed_is_failed = False
+{% endif %}
 
 [privilege_escalation]
 #become = False

@@ -1,0 +1,24 @@
+# file: roles/nodeansible/molecule/default/molecule.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: instance-${MOLECULE_INSTANCE_NAME}
+    image: docker.io/${MOLECULE_DISTRO}
+    pre_build_image: True
+provisioner:
+  name: ansible
+  log: false
+  options:
+    vvv: false
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+  flake8

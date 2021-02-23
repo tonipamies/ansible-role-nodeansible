@@ -176,6 +176,39 @@
     - configure
 
 #
+# Ensures that logging directory exists
+#
+- name: "CREATE_DIR | Ensures that logging directory exists"
+  file:
+    path: "{{ cfg_log_path | dirname }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  tags:
+    - install
+    - configure
+  when:
+    - cfg_logging is defined
+    - cfg_logging
+#
+# Ensures that vault directory exists
+#
+- name: "CREATE_DIR | Ensures that vault directory exists"
+  file:
+    path: "{{ cfg_vault_password_file | dirname }}"
+    state: directory
+    recurse: yes
+    mode: 0700
+    owner: "{% if create_ansible_user is defined and create_ansible_user %}{{ custom_ansible_user.name }}{% else %}root{% endif %}"
+    group: "{{ custom_ansible_user.group | default(custom_ansible_group.name) | default(omit) }}"
+  tags:
+    - install
+    - configure
+  when:
+    - cfg_vault_password_file is defined
+#
 # Ensures that cfg_hosts_inventory directory exists
 #
 - name: "CREATE_DIR | Ensures that {{ cfg_hosts_inventory | dirname }} directory exists"
@@ -469,6 +502,48 @@
     - install
     - configure
     - install_plugins
+#
+# Ensures that fact_caching_path directory exists
+#
+- name: CREATE_DIR | Ensures that fact_caching_path directory exists
+  file:
+    path: "{{ cfg_fact_caching_path }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  vars:
+    valid_fact_caching:
+      - jsonfile
+      - pickle
+      - yaml
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+    - cfg_fact_caching_path is defined
+  tags:
+    - install
+    - configure
+#
+# Ensures that directory for retry files exist
+#
+- name: "CREATE_DIR | Ensures that directory for retry files exist"
+  file:
+    path: "{{ cfg_retry_files_save_path }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: root
+    group: root
+  when:
+    - cfg_retry_files_enabled is defined
+    - cfg_retry_files_enabled
+    - cfg_retry_files_save_path is defined
+    - cfg_retry_files_save_path is not regex( '^(~).*' )
+  tags:
+    - install
+    - configure
 #
 # Deploying ansible callback plugins from Git
 #

@@ -124,11 +124,72 @@ cfg_callback_enabled:
   - profile_roles
   - counter_enabled
 #
+# Logging is off by default, when is activated you must set th path too
+cfg_logging: false
+cfg_log_path: /var/log/ansible.log
+#
+# By default, variables from roles will be visible in the global variable
+# scope. To prevent this, set the following option to True, and only
+# tasks and handlers within the role will see the variables there
+#
+cfg_private_role_vars: False
+#
+# If set, configures the path to the Vault password file as an alternative to
+# specifying --vault-password-file on the command line. This can also be
+# an executable script that returns the vault password to stdout.
+cfg_vault_password_file: "{% if create_ansible_user is defined and create_ansible_user %}{{ custom_ansible_user.home }}/vault/vault_password_file{% else %}''{% endif %}"
+#
+# Format of string {% raw %}{{ ansible_managed }}{% endraw %} available within Jinja2
+# templates indicates to users editing templates files will be replaced.
+# replacing {file}, {host} and {uid} and strftime codes with proper values.
+#
+#ansible_managed = Ansible managed: {file} modified on %Y-%m-%d %H:%M:%S by {uid} on {host}
+# {file}, {host}, {uid}, and the timestamp can all interfere with idempotence
+# in some situations so the default is a static string:
+#
+cfg_ansible_managed: "This file is managed by Ansible.%n
+
+  template: {file}
+
+  date: %Y-%m-%d %H:%M:%S
+
+  user: {uid}
+
+  host: {host}"
+#
 # By default, ansible-playbook will display "Skipping [host]" if it determines a task
 # should not be run on a host. Set this to "False" if you don't want to see these "Skipping"
 # messages. NOTE: the task header will still be shown regardless of whether or not the
 # task is skipped.
 cfg_display_skipped_hosts: True
+#
+# Ansible will raise errors when attempting to dereference
+# Jinja2 variables that are not set in templates or action lines. Uncomment this line
+# to change this behavior.
+#
+cfg_error_on_undefined_vars: False
+#
+# Ansible may display warnings based on the configuration of the
+# system running ansible itself. This may include warnings about 3rd party packages or
+# other conditions that should be resolved if possible.
+# To disable these warnings, set the following value to False:
+#
+cfg_system_warnings: True
+#
+# Ansible may display deprecation warnings for language
+# features that should no longer be used and will be removed in future versions.
+# To disable these warnings, set the following value to False:
+#
+cfg_deprecation_warnings: True
+#
+# Ansible can optionally warn when usage of the shell and
+# command module appear to be simplified by using a default Ansible module
+# instead. These warnings can be silenced by adjusting the following
+# setting or adding warn=yes or warn=no to the end of the command line
+# parameter string. This will for example suggest using the git module
+# instead of shelling out to the git command.
+#
+cfg_command_warnings: True
 #
 # set plugin path directories here
 #
@@ -156,6 +217,119 @@ cfg_terminal_plugins:
   - /usr/share/ansible/plugins/terminal
 cfg_strategy_plugins:
   - /usr/share/ansible/plugins/strategy
+#
+# The default behavior described above is the linear strategy. Ansible offers
+# other strategies, including the debug strategy (see also Debugging tasks) and
+# the free strategy, which allows each host to run until the end of the play as
+# fast as it can
+# debug       Executes tasks in interactive debug session
+# free        Executes tasks without waiting for all hosts
+# host_pinned Executes tasks on each host without interruption
+# linear      Executes tasks in a linear fashion
+cfg_strategy: linear
+#
+# By default, callbacks are not loaded for /bin/ansible. Enable this if you
+# want, for example, a notification or logging callback to also apply to
+# /bin/ansible runs
+#
+cfg_bin_ansible_callbacks: True
+#
+# Don't like colors either?
+# set to true if you don't want colors, or export ANSIBLE_NOCOLOR=1
+#
+cfg_nocolor: True
+#
+# If set to a persistent type (not 'memory', for example 'redis') fact values
+# from previous runs in Ansible will be stored. This may be useful when
+# wanting to use, for example, IP information from one group of servers
+# without having to talk to them in the same playbook run to get their
+# current IP information.
+# jsonfile  JSON formatted files
+# memcached Use memcached DB for cache
+# memory    RAM backed, non persistent
+# mongodb   Use MongoDB for caching
+# pickle    Pickle formatted files
+# redis     Use Redis DB for cache
+# yaml      YAML formatted files
+cfg_fact_caching: pickle
+#
+# jsonfile  User defined prefix to use when creating the JSON files. Default: null
+# memcached User defined prefix to use when creating the DB entries. Default: ansible_facts
+# mongodb   User defined prefix to use when creating the DB entries. Default: ansible_facts
+# pickle    User defined prefix to use when creating the files. Default: null
+# redis     User defined prefix to use when creating the DB entries. Default: ansible_facts
+# yaml      User defined prefix to use when creating the files. Default: null
+cfg_fact_caching_prefix: ""
+#
+# jsonfile  Expiration timeout for the cache plugin data. Default: 86400
+# memcached Expiration timeout for the cache plugin data. Default: 86400
+# mongodb   Expiration timeout for the cache plugin data. Default: 86400
+# pickle    Expiration timeout for the cache plugin data. Default: 86400
+# redis     Expiration timeout for the cache plugin data. Default: 86400
+# yaml      Expiration timeout for the cache plugin data. Default: 86400
+# Set to 0 to never expire
+cfg_fact_caching_timeout: 86400
+#
+# jsonfile  Path in which the cache plugin will save the JSON files. Default: null
+# pickle    Path in which the cache plugin will save the files. Default: null
+# yaml      Path in which the cache plugin will save the files. Default: null
+cfg_fact_caching_path: "{% if create_ansible_user is defined and create_ansible_user %}{{ custom_ansible_user.home }}/cache/{% else %}'/tmp/ansible/cache'{% endif %}"
+# memcached List of connection information for the memcached DBs. Default: ['127.0.0.1:11211']
+#           A list of host:port items
+# mongodb   MongoDB Connection String URI. Default: null
+# redis     A colon separated string of connection information for Redis.
+#           The format is `host:port:db:password', for example `localhost:6379:0:changeme'.
+#           To use encryption in transit, prefix the connection with `tls://', as in
+#           `tls://localhost:6379:0:changeme'.
+#           To use redis sentinel, use separator `;', for example
+#           `localhost:26379;localhost:26379;0:changeme'. Requires redis>=2.9.0.
+cfg_fact_caching_connect_uri: ""
+#
+# redis     User defined name for cache keyset name. Default: ansible_cache_keys
+cfg_fact_caching_redis_keyset_name: "ansible_cache_keys"
+#
+# redis     The redis sentinel service name (or referenced as cluster name). Default: null
+cfg_fact_caching_redis_sentinel: ""
+#
+# retry files
+# When a playbook fails a .retry file can be created that will be placed in ~/
+# You can enable this feature by setting retry_files_enabled to True
+# and you can change the location of the files by setting retry_files_save_path
+cfg_retry_files_enabled: False
+cfg_retry_files_save_path: ~/.ansible-retry
+#
+# prevents logging of task data, off by default
+cfg_no_log: False
+#
+# prevents logging of tasks, but only on the targets, data is still logged on
+# the master/controller
+cfg_no_target_syslog: False
+#
+# Controls showing custom stats at the end, off by default
+cfg_show_custom_stats: False
+#
+# Controls which files to ignore when using a directory as inventory with
+# possibly multiple sources (both static and dynamic)
+#
+cfg_inventory_ignore_extensions:
+  - "~"
+  - ".orig"
+  - ".bak"
+  - ".ini"
+  - ".cfg"
+  - ".retry"
+  - ".pyc"
+  - ".pyo"
+  - ".swp"
+  - ".rpm"
+  - ".md"
+  - ".txt"
+#
+# ignore files matching these patterns when parsing a directory as inventory source
+cfg_inventory_ignore_patterns: []
+#
+# If 'True' unparsed inventory sources become fatal errors, otherwise they are warni  ngs.
+cfg_inventory_unparsed_is_failed: False
 #
 # Plugins to be installed
 #

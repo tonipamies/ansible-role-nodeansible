@@ -1,0 +1,43 @@
+# file: roles/nodeansible/molecule/default/converge.yml
+# author: Antoni Pàmies <toni@arboli.net>
+#
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "INCLUDE ROLE | Install Nodeansible"
+      include_role:
+        name: "nodeansible"
+      vars:
+        - cfg_fact_caching_prefix: voz
+        - cfg_fact_caching: pickle
+        - cfg_no_log: true
+        - cfg_no_target_syslog: true
+        - vim_for_sysadmins: false
+        - create_ansible_user: true
+        - cfg_retry_files_enabled: true
+        - custom_ansible_group:
+            name: myansible
+            gid: 1100
+        - custom_ansible_user:
+            name: myansible
+            comment: The Ansible User
+            home: /home/myansible
+            clear_password: ANt0niP@m13s
+            sudoer: true
+            sudo_nopasswd: true
+            sudo_file: myansible
+            create_ssh_keypair: false
+            copy_rsa_keys: true
+            authorized_keys:
+              - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBI/CY1yi/rG8f8Ubfo8vr4MHdWA6WWRUphwW13MmahzdAVVrne0zikHyVRRlKkACKcNm88rn3CEnKqxBhrECUEa4DpyV6m0dr4SbdDsjCkijYiHxUVVPcR7pr4wN56mYBY4a5FT/2Va8CLn0uJ3fXgxOnpMIV9os915M7ye1faEnfyYZ+rss6o/qe+fFtUXQ0u+9trbQD7yGW3/81iWy6Xn9EU5V7pf8UNJPZFLnRFB8GtCMal2p7cBxlUPRd89ykwE/DXDWvaZsGFjwVwOHiNHirF8GqzHyL57zCxvoykw+Uq52VyIArtxPXh5aQ8jw4/M9qnQ107TwwFCmt2yj+t19tTwzYUH/ABA0jMiWC1B+poW+R5uInsSpO/QMM8qebV2b1jFWrXGKhtPAazMq9tJDjDC3aezjA/E7oUI4b61Aa2LrOmmV0k8I52UKWR5jF+5Mzx1TBGeHo+MGF4ghIjtrSiC5uizJQsiF8B5x3XVlCrOBQghYkT6xKhSOdufnD1OEJndb+g2dJz9iC9+PMh3QR+VML4ysv65bubKlURQLkxlQXRv0jiZj8O0Q/94/GmRcjGPwWnxI7xouPLNNRQZ853p2nMmCy3MYUSkKHU6X0iAP2lUi6X1OdWjBWe3FCk9B9kQknna9edKuBNQwQqof+LJWWnMfu439RVKr7Uw==
+                from:
+                  - "172.18.48.*"
+                  - "192.168.1.0/24"
+                  - "!172.18.48.124/32"
+                no_agent_forwarding: true
+                no_port_forwarding: true
+                no_x11_forwarding: true
+                comment: Windows notepad ansible@agrifoli.arboli.net
+              - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGzsMcScvxry9J/YAZLyv1vC/2oGSFzpp7btM5NaEXWvTVH1vGATHAFLOeFv6L5iQOikHsfbnYM8OSgceqAp2imIGvpRo/+C+GGouo/otrYG2HDjmk4XKvO3utDeN2tc7g/smSXCGOtz0LHKcWRtLCNbJn85G2pCCNJj/2DvQwnj28FxLqY1WLDH2YgG7R/B/HiWMIrjYWT9mIikvCTZjV2jC0g2ZzangwA/NcEEdNeP3gBj3EpdTjj4FJP+tgZGxwRqRWf70tI3WD6c6EwDDz8FQKGQeQfrgK+L0SN9oBUBBfOr/NhoNZu7g9V+alts5ohJiPQTMMarAfhVl+LDvuuhdmonIpGCvKn1X72y63Bk7S4nv+7TEz9+XoYY2uB6OsnSTYKxPqD1pYYHOMj1hbjxNmfzXjgvj2y8X7H9Gegc2o9rpfgqRAQw4RBluRvsDIpjWSoochRPsFacba8jb1o7QoIQTWOk1OvwriVHn+HdjoGmPy7BOLrahYNohifTAGo5OTi4tB5m4cJredEq9lcNbb3kVeTtCgvHdugN2cx89nVndZKJKTbutscIA2iMZurRLMEgZsiiS8a6EeFokSAdFRFMv5HY6QwHx5k8Wr0y3yGmT8e1+aC/3XOuzDptyDQam5hekuopOA17mCOdUMqcAfR7fD9IHm1ncNqTgfow==
+                comment: Windows WSL toni

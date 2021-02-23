@@ -9,8 +9,7 @@
   assert:
     that:
       - create_ansible_user is defined
-      - create_ansible_user
-          | type_debug == 'bool'
+      - create_ansible_user | type_debug == 'bool'
     quiet: yes
     fail_msg: >
       The variable 'create_ansible_user' must be defined and
@@ -23,8 +22,7 @@
   assert:
     that:
       - validate_password_strength is defined
-      - validate_password_strength
-          | type_debug == 'bool'
+      - validate_password_strength | type_debug == 'bool'
     quiet: yes
     fail_msg: >
       The variable 'validate_password_strength' must be defined and
@@ -41,7 +39,7 @@
     - name: CHECK VAR | Checks if custom_ansible_group is set correctly
       assert:
         that:
-          - custom_ansible_group is iterable
+          - custom_ansible_group | type_debug == 'dict'
         quiet: yes
       when:
         - custom_ansible_group is defined
@@ -113,7 +111,7 @@
       assert:
         that:
           - custom_ansible_user is defined
-          - custom_ansible_user is iterable
+          - custom_ansible_user | type_debug == 'dict'
         quiet: yes
     #
     # Checks if item custom_ansible_user.name is set correctly
@@ -430,7 +428,7 @@
     - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys is set correctly
       assert:
         that:
-          - custom_ansible_user.authorized_keys is iterable
+          - custom_ansible_user.authorized_keys | type_debug == 'list'
         quiet: yes
       when:
         - custom_ansible_user.authorized_keys is defined
@@ -456,7 +454,7 @@
     - name: CHECK VAR | Checks if custom_ansible_user.authorized_keys.from are set correctly
       assert:
         that:
-          - item.from is iterable
+          - item.from | type_debug == 'list'
           - item.from | length >0
         quiet: yes
       loop: "{{ custom_ansible_user.authorized_keys }}"
@@ -553,7 +551,7 @@
   assert:
     that:
       - ansible_base_packages is defined
-      - ansible_base_packages is iterable
+      - ansible_base_packages | type_debug == 'list'
     quiet: yes
 
 #
@@ -563,6 +561,7 @@
   assert:
     that:
       - item is string
+      - item | length > 0
     quiet: yes
     fail_msg: >
       The item {{ item }} is not string
@@ -576,6 +575,7 @@
     that:
       - cfg_hosts_inventory is defined
       - cfg_hosts_inventory is string
+      - cfg_hosts_inventory | length > 0
     quiet: yes
     fail_msg: >
       The variable 'cfg_hosts_inventory' must be defined and
@@ -589,8 +589,7 @@
   assert:
     that:
       - backup_config_files is defined
-      - backup_config_files
-          | type_debug == 'bool'
+      - backup_config_files | type_debug == 'bool'
     quiet: yes
     fail_msg: >
       The variable 'backup_config_files' must be defined and
@@ -603,7 +602,7 @@
   assert:
     that:
       - cfg_library is defined
-      - cfg_library is iterable
+      - cfg_library | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_library are set correctly
@@ -613,8 +612,9 @@
     that:
       - item is defined
       - item is string
+      - item | length >0
     quiet: yes
-  loop: "{{ cfg_module_utils }}"
+  loop: "{{ cfg_library }}"
 #
 # Test if module_utils is set correctly
 #
@@ -622,7 +622,7 @@
   assert:
     that:
       - cfg_module_utils is defined
-      - cfg_module_utils is iterable
+      - cfg_module_utils | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_module_utils are set correctly
@@ -632,6 +632,7 @@
     that:
       - item is defined
       - item is string
+      - item | length >0
     quiet: yes
   loop: "{{ cfg_module_utils }}"
 #
@@ -662,7 +663,7 @@
   assert:
     that:
       - cfg_gather_subset is defined
-      - cfg_gather_subset is iterable
+      - cfg_gather_subset | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_gather_subset are set correctly
@@ -712,21 +713,21 @@
   assert:
     that:
       - cfg_inject_facts_as_vars is defined
-      - cfg_inject_facts_as_vars
-          | type_debug == 'bool'
+      - cfg_inject_facts_as_vars | type_debug == 'bool'
     quiet: yes
     fail_msg: >
       The variable 'cfg_inject_facts_as_vars' must be defined
 
       and must be a boolean variable
 #
-# Test if cfg_stdout_callback are set correctly
+# Test if cfg_stdout_callback is set correctly
 #
-- name: CHECK VAR | Checks if cfg_stdout_callback are set correctly
+- name: CHECK VAR | Checks if cfg_stdout_callback is set correctly
   assert:
     that:
       - cfg_stdout_callback is defined
       - cfg_stdout_callback is string
+      - cfg_stdout_callback | length > 0
     quiet: yes
     fail_msg: >
       The variable 'cfg_stdout_callback' must be defined and
@@ -739,7 +740,7 @@
   assert:
     that:
       - cfg_callback_enabled is defined
-      - cfg_callback_enabled is iterable
+      - cfg_callback_enabled | type_debug == 'list'
     quiet: yes
   when:
     - cfg_callback_enabled is defined
@@ -751,6 +752,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
     fail_msg: >
       The items of 'cfg_callback_enabled' must be defined and
@@ -760,19 +762,517 @@
   when:
     - cfg_callback_enabled is defined
 #
+# Test if cfg_logging is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_logging is defined and has a correct value
+  assert:
+    that:
+      - cfg_logging is defined
+      - cfg_logging | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_logging' must be defined and
+
+      must be a boolean variable
+#
+# Test if cfg_log_path are set correctly
+#
+- name: CHECK VAR | Checks if cfg_log_path is set correctly
+  assert:
+    that:
+      - cfg_log_path is defined
+      - cfg_log_path is string
+      - cfg_log_path | length > 0
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_log_path' must be defined and
+
+      must be a string
+  when:
+    - cfg_logging is defined
+    - cfg_logging
+#
+# Test if cfg_private_role_vars is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_private_role_vars has a correct value when it's defined
+  assert:
+    that:
+      - cfg_private_role_vars | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_private_role_vars' must be defined and
+
+      must be a boolean variable
+  when:
+    - cfg_private_role_vars is defined
+#
+# Test if cfg_vault_password_file are set correctly
+#
+- name: CHECK VAR | Checks if cfg_vault_password_file is set correctly
+  assert:
+    that:
+      - cfg_vault_password_file is string
+      - cfg_vault_password_file | length > 0
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_vault_password_file' must be a string
+  when:
+    - cfg_vault_password_file is defined
+#
+# Test if cfg_ansible_managed are set correctly
+#
+- name: CHECK VAR | Checks if cfg_ansible_managed is set correctly
+  assert:
+    that:
+      - cfg_ansible_managed is string
+      - cfg_ansible_managed | length > 0
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_ansible_managed' must be a string
+  when:
+    - cfg_ansible_managed is defined
+#
 # Test if cfg_display_skipped_hosts is defined and has a correct value
 #
 - name: CHECK VAR | Checks if cfg_display_skipped_hosts is defined and has a correct value
   assert:
     that:
       - cfg_display_skipped_hosts is defined
-      - cfg_display_skipped_hosts
-          | type_debug == 'bool'
+      - cfg_display_skipped_hosts | type_debug == 'bool'
     quiet: yes
     fail_msg: >
       The variable 'cfg_display_skipped_hosts' must be defined
 
       and must be a boolean variable
+#
+# Test if cfg_error_on_undefined_vars is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_error_on_undefined_vars has a correct value when it's defined
+  assert:
+    that:
+      - cfg_error_on_undefined_vars | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_error_on_undefined_vars' must be a boolean variable
+  when:
+    - cfg_error_on_undefined_vars is defined
+#
+# Test if cfg_system_warnings is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_system_warnings has a correct value when it's defined
+  assert:
+    that:
+      - cfg_system_warnings | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_system_warnings' must be a boolean variable
+  when:
+    - cfg_system_warnings is defined
+#
+# Test if cfg_deprecation_warnings is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_deprecation_warnings has a correct value when it's defined
+  assert:
+    that:
+      - cfg_deprecation_warnings | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_deprecation_warnings' must be a boolean variable
+  when:
+    - cfg_deprecation_warnings is defined
+#
+# Test if cfg_command_warnings is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_command_warnings has a correct value when it's defined
+  assert:
+    that:
+      - cfg_command_warnings | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_command_warnings' must be a boolean variable
+  when:
+    - cfg_command_warnings is defined
+#
+# Test if cfg_strategy is set correctly
+#
+- name: CHECK VAR | Checks if cfg_strategy is set correctly
+  assert:
+    that:
+      - cfg_strategy is string
+      - cfg_strategy in valid_strategy
+    quiet: yes
+    fail_msg: >
+      The 'cfg_strategy' must be defined, must be
+
+      a string and must contain one of:
+
+      {{ valid_strategy | to_nice_yaml }}
+  vars:
+    - valid_strategy:
+      - debug
+      - free
+      - host_pinned
+      - linear
+  when:
+    cfg_strategy is defined
+#
+# Test if cfg_bin_ansible_callbacks is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_bin_ansible_callbacks has a correct value when it's defined
+  assert:
+    that:
+      - cfg_bin_ansible_callbacks | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_bin_ansible_callbacks' must be a boolean variable
+  when:
+    - cfg_bin_ansible_callbacks is defined
+#
+# Test if cfg_nocolor is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_nocolor has a correct value when it's defined
+  assert:
+    that:
+      - cfg_nocolor | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_nocolor' must be a boolean variable
+  when:
+    - cfg_nocolor is defined
+#
+# Test if cfg_fact_caching is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching is set correctly
+  assert:
+    that:
+      - cfg_fact_caching is string
+      - cfg_fact_caching in valid_fact_caching
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching' must be a string
+
+      and must contain one of:
+
+      {{ valid_fact_caching | to_nice_yaml }}
+  vars:
+    - valid_fact_caching:
+      - jsonfile
+      - memcached
+      - memory
+      - mongodb
+      - pickle
+      - redis
+      - yaml
+  when:
+    cfg_fact_caching is defined
+#
+# Test if cfg_fact_caching_prefix is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_prefix is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_prefix is string
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_prefix' must be a string
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching_prefix | length > 0
+#
+# Test if cfg_fact_caching_timeout is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_timeout is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_timeout is number
+      - cfg_fact_caching_timeout >= 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_timeout' must be a number >= 0
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching_timeout is defined
+#
+# Test if cfg_fact_caching_path is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_path is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_path is defined
+      - cfg_fact_caching_path is string
+      - cfg_fact_caching_path | length > 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_path' must be defined and
+
+      must be a string
+  vars:
+    valid_fact_caching:
+      - jsonfile
+      - pickle
+      - yaml
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+#
+# Test if cfg_fact_caching_connect_uri is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_uri is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_connect_uri is defined
+      - cfg_fact_caching_connect_uri | type_debug == 'list'
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_connect_uri' must be defined and
+
+      must be a list of connection information for the
+
+      memcached DBs
+  vars:
+    valid_fact_caching:
+      - memcached
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+#
+# Test if cfg_fact_caching_connect_uri is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_uri is set correctly
+  assert:
+    that:
+      - item is string
+      - item | length > 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_connect_uri' must be defined and
+
+      must be a list of connection information for the
+
+      memcached DBs. Example:
+
+      - 127.0.0.1:11211
+
+      - 10.10.10.10:11211
+  vars:
+    valid_fact_caching:
+      - memcached
+  loop: "{{ cfg_fact_caching_connect_uri | list }}"
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+    - cfg_fact_caching_connect_uri | type_debug == 'list'
+#
+# Test if cfg_fact_caching_connect_uri is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_path is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_connect_uri is defined
+      - cfg_fact_caching_connect_uri is string
+      - cfg_fact_caching_connect_uri | length > 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_connect_uri' must be defined and
+
+      must be a string
+  vars:
+    valid_fact_caching:
+      - momgodb
+      - redis
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+#
+# Test if cfg_fact_caching_redis_keyset_name is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_redis_keyset_name is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_redis_keyset_name is string
+      - cfg_fact_caching_redis_keyset_name | length > 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_redis_keyset_name' must be a string
+  vars:
+    valid_fact_caching:
+      - redis
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+    - cfg_fact_caching_redis_keyset_name is defined
+#
+# Test if cfg_fact_caching_redis_sentinel is set correctly
+#
+- name: CHECK VAR | Checks if cfg_fact_caching_redis_sentinel is set correctly
+  assert:
+    that:
+      - cfg_fact_caching_redis_sentinel is string
+      - cfg_fact_caching_redis_sentinel | length > 0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_fact_caching_redis_sentinel' must be a string
+  vars:
+    valid_fact_caching:
+      - redis
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+    - cfg_fact_caching_redis_sentinel is defined
+#
+# TODO Asserts for memcached, mongodb and redis fact_caching
+#
+- name: INFO_MSG | TODO Asserts for memcached, mongodb and redis fact_caching configuration
+  debug:
+    msg: >
+      TODO: Asserts for memcached, mongodb and redis fact_caching
+
+      configuration
+  vars:
+    valid_fact_caching:
+      - memcached
+      - mongodb
+      - redis
+  when:
+    - cfg_fact_caching is defined
+    - cfg_fact_caching in valid_fact_caching
+#
+# Test if cfg_retry_files_enabled is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_retry_files_enabled has a correct value when it's defined
+  assert:
+    that:
+      - cfg_retry_files_enabled | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_retry_files_enabled' must be a boolean variable
+  when:
+    - cfg_retry_files_enabled is defined
+#
+# Test if cfg_retry_files_save_path is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_retry_files_save_path has a correct value when it's defined
+  assert:
+    that:
+      - cfg_retry_files_save_path is string
+      - cfg_retry_files_save_path | length > 0
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_retry_files_save_path' must be a string
+  when:
+    - cfg_retry_files_enabled is defined
+    - cfg_retry_files_enabled
+    - cfg_retry_files_save_path is defined
+#
+# Test if cfg_no_log is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_no_log has a correct value when it's defined
+  assert:
+    that:
+      - cfg_no_log | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_no_log' must be a boolean variable
+  when:
+    - cfg_no_log is defined
+#
+# Test if cfg_no_target_syslog is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_no_target_syslog has a correct value when it's defined
+  assert:
+    that:
+      - cfg_no_target_syslog | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_no_target_syslog' must be a boolean variable
+  when:
+    - cfg_no_target_syslog is defined
+#
+# Test if cfg_show_custom_stats is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_show_custom_stats has a correct value when it's defined
+  assert:
+    that:
+      - cfg_show_custom_stats | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_show_custom_stats' must be a boolean variable
+  when:
+    - cfg_show_custom_stats is defined
+#
+# Test if cfg_inventory_ignore_extensions is set correctly
+#
+- name: CHECK VAR | Checks if cfg_inventory_ignore_extensions is set correctly
+  assert:
+    that:
+      - cfg_inventory_ignore_extensions | type_debug == 'list'
+    quiet: yes
+    fail_msg: >
+      The 'cfg_inventory_ignore_extensions' must be a list of
+
+      file extenssions
+  when:
+    - cfg_inventory_ignore_extensions is defined
+#
+# Test if cfg_inventory_ignore_extensions is set correctly
+#
+- name: CHECK VAR | Checks if cfg_inventory_ignore_extensions is set correctly
+  assert:
+    that:
+      - item is string
+      - item | length >0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_inventory_ignore_extensions' must be a list of
+
+      strings with the file extensions to be ignored.
+  loop: "{{ cfg_inventory_ignore_extensions | list }}"
+  when:
+    - cfg_inventory_ignore_extensions is defined
+    - cfg_inventory_ignore_extensions | length > 0
+#
+# Test if cfg_inventory_ignore_patterns is set correctly
+#
+- name: CHECK VAR | Checks if cfg_inventory_ignore_patterns is set correctly
+  assert:
+    that:
+      - cfg_inventory_ignore_patterns | type_debug == 'list'
+    quiet: yes
+    fail_msg: >
+      The 'cfg_inventory_ignore_patterns' must be a list of
+
+      file patterns
+  when:
+    - cfg_inventory_ignore_patterns is defined
+#
+# Test if cfg_inventory_ignore_patterns is set correctly
+#
+- name: CHECK VAR | Checks if cfg_inventory_ignore_patterns is set correctly
+  assert:
+    that:
+      - item is string
+      - item | length >0
+    quiet: yes
+    fail_msg: >
+      The 'cfg_inventory_ignore_patterns' must be a list of
+
+      strings with the file patterns to be ignored.
+  loop: "{{ cfg_inventory_ignore_patterns | list }}"
+  when:
+    - cfg_inventory_ignore_patterns is defined
+    - cfg_inventory_ignore_patterns | length > 0
+#
+# Test if cfg_inventory_unparsed_is_failed is defined and has a correct value
+#
+- name: CHECK VAR | Checks if cfg_inventory_unparsed_is_failed has a correct value when it's defined
+  assert:
+    that:
+      - cfg_inventory_unparsed_is_failed | type_debug == 'bool'
+    quiet: yes
+    fail_msg: >
+      The variable 'cfg_inventory_unparsed_is_failed' must be a boolean variable
+  when:
+    - cfg_inventory_unparsed_is_failed is defined
 #
 # Test if cfg_roles_path is set correctly
 #
@@ -780,7 +1280,7 @@
   assert:
     that:
       - cfg_roles_path is defined
-      - cfg_roles_path is iterable
+      - cfg_roles_path | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_roles_path are set correctly
@@ -790,6 +1290,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_roles_path }}"
 #
@@ -799,7 +1300,7 @@
   assert:
     that:
       - cfg_collections_paths is defined
-      - cfg_collections_paths is iterable
+      - cfg_collections_paths | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_collections_paths are set correctly
@@ -809,6 +1310,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_collections_paths }}"
 #
@@ -818,7 +1320,7 @@
   assert:
     that:
       - cfg_action_plugins is defined
-      - cfg_action_plugins is iterable
+      - cfg_action_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_action_plugins are set correctly
@@ -828,6 +1330,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_action_plugins }}"
 #
@@ -837,7 +1340,7 @@
   assert:
     that:
       - cfg_become_plugins is defined
-      - cfg_become_plugins is iterable
+      - cfg_become_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_become_plugins are set correctly
@@ -847,6 +1350,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_become_plugins }}"
 #
@@ -856,7 +1360,7 @@
   assert:
     that:
       - cfg_cache_plugins is defined
-      - cfg_cache_plugins is iterable
+      - cfg_cache_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_cache_plugins are set correctly
@@ -866,6 +1370,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_cache_plugins }}"
 #
@@ -875,7 +1380,7 @@
   assert:
     that:
       - cfg_callback_plugins is defined
-      - cfg_callback_plugins is iterable
+      - cfg_callback_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_callback_plugins are set correctly
@@ -885,6 +1390,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_callback_plugins }}"
 #
@@ -894,7 +1400,7 @@
   assert:
     that:
       - cfg_connection_plugins is defined
-      - cfg_connection_plugins is iterable
+      - cfg_connection_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_connection_plugins are set correctly
@@ -904,6 +1410,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_connection_plugins }}"
 #
@@ -913,7 +1420,7 @@
   assert:
     that:
       - cfg_lookup_plugins is defined
-      - cfg_lookup_plugins is iterable
+      - cfg_lookup_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_lookup_plugins are set correctly
@@ -923,6 +1430,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_lookup_plugins }}"
 #
@@ -932,7 +1440,7 @@
   assert:
     that:
       - cfg_inventory_plugins is defined
-      - cfg_inventory_plugins is iterable
+      - cfg_inventory_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_inventory_plugins are set correctly
@@ -942,6 +1450,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_inventory_plugins }}"
 #
@@ -951,7 +1460,7 @@
   assert:
     that:
       - cfg_vars_plugins is defined
-      - cfg_vars_plugins is iterable
+      - cfg_vars_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_vars_plugins are set correctly
@@ -961,6 +1470,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_vars_plugins }}"
 #
@@ -970,7 +1480,7 @@
   assert:
     that:
       - cfg_filter_plugins is defined
-      - cfg_filter_plugins is iterable
+      - cfg_filter_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_filter_plugins are set correctly
@@ -980,6 +1490,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_filter_plugins }}"
 #
@@ -989,7 +1500,7 @@
   assert:
     that:
       - cfg_test_plugins is defined
-      - cfg_test_plugins is iterable
+      - cfg_test_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_test_plugins are set correctly
@@ -999,6 +1510,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_test_plugins }}"
 #
@@ -1008,7 +1520,7 @@
   assert:
     that:
       - cfg_terminal_plugins is defined
-      - cfg_terminal_plugins is iterable
+      - cfg_terminal_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_terminal_plugins are set correctly
@@ -1018,6 +1530,7 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_terminal_plugins }}"
 #
@@ -1027,7 +1540,7 @@
   assert:
     that:
       - cfg_strategy_plugins is defined
-      - cfg_strategy_plugins is iterable
+      - cfg_strategy_plugins | type_debug == 'list'
     quiet: yes
 #
 # Test if items in cfg_strategy_plugins are set correctly
@@ -1037,5 +1550,6 @@
     that:
       - item is defined
       - item is string
+      - item | length > 0
     quiet: yes
   loop: "{{ cfg_strategy_plugins }}"
