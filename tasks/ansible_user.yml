@@ -29,9 +29,9 @@
     createhome: "{{ custom_ansible_user.createhome | default('yes') }}"
     system: "{{ custom_ansible_user.system | default('no') }}"
     state: present
-    password: "{% if custom_ansible_user.password is defined %}{{ custom_ansible_user.password }}{% elif custom_ansible_user.clear_password is defined%}{{ custom_ansible_user.clear_password | password_hash('sha512') }}{% else %}{{ omit }}{% endif %}"
+    password: "{% if custom_ansible_user.password is defined and custom_ansible_user.password | length > 0 %}{{ custom_ansible_user.password }}{% elif custom_ansible_user.clear_password is defined%}{{ custom_ansible_user.clear_password | password_hash('sha512') }}{% else %}{{ omit }}{% endif %}"
     update_password: "{{ custom_ansible_user.update_password | default(omit) }}"
-  no_log: true
+#  no_log: true
 
 #
 # Installs SSH authorized public keys for the ansible user

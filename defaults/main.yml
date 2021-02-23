@@ -25,7 +25,7 @@ custom_ansible_user:
   sudo_nopasswd: false
   sudo_file: "ansible"
   home: "/home/ansible"
-  password: "1234erty"
+  password: ""
   clear_password: ""
   update_password: on_create
   create_ssh_keypair: true

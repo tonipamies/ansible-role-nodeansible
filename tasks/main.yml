@@ -555,6 +555,7 @@
     mode: 0755
     owner: root
     group: root
+  changed_when: false
   tags:
     - install
     - configure
@@ -569,6 +570,7 @@
     force: yes
     recursive: no
     version: "{{ item.version }}"
+  changed_when: false
   loop: "{{ install_plugins }}"
   when:
     - install_plugins is defined
@@ -585,6 +587,7 @@
     remote_src: yes
     backup: no
     mode: '0644'
+  changed_when: false
   loop: "{{ install_plugins }}"
   when:
     - install_plugins is defined
@@ -599,6 +602,7 @@
   file:
     state: absent
     path: "{{ git_tmp_dir | default('/tmp/git_tmp/') }}"
+  changed_when: false
   tags:
     - install
     - configure
@@ -630,6 +634,9 @@
       - --transform
       - "s:^[^/]*:{{ item.name }}:"
     remote_src: yes
+    owner: root
+    group: root
+  changed_when: false
   loop: "{{ install_roles }}"
   when:
     - install_roles is defined
@@ -652,6 +659,9 @@
       - --transform
       - "s:^[^/]*:{{ item.name }}:"
     remote_src: yes
+    owner: root
+    group: root
+  changed_when: false
   loop: "{{ install_custom_roles }}"
   when:
     - install_custom_roles is defined

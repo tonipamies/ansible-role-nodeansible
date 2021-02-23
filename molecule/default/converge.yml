@@ -13,7 +13,7 @@
         - cfg_fact_caching: pickle
         - cfg_no_log: true
         - cfg_no_target_syslog: true
-        - vim_for_sysadmins: false
+        - vim_for_sysadmins: true
         - create_ansible_user: true
         - cfg_retry_files_enabled: true
         - custom_ansible_group:
@@ -21,6 +21,7 @@
             gid: 1100
         - custom_ansible_user:
             name: myansible
+            uid: 1100
             comment: The Ansible User
             home: /home/myansible
             clear_password: ANt0niP@m13s
@@ -28,6 +29,7 @@
             sudo_nopasswd: true
             sudo_file: myansible
             create_ssh_keypair: false
+            update_password: on_create
             copy_rsa_keys: true
             authorized_keys:
               - key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBI/CY1yi/rG8f8Ubfo8vr4MHdWA6WWRUphwW13MmahzdAVVrne0zikHyVRRlKkACKcNm88rn3CEnKqxBhrECUEa4DpyV6m0dr4SbdDsjCkijYiHxUVVPcR7pr4wN56mYBY4a5FT/2Va8CLn0uJ3fXgxOnpMIV9os915M7ye1faEnfyYZ+rss6o/qe+fFtUXQ0u+9trbQD7yGW3/81iWy6Xn9EU5V7pf8UNJPZFLnRFB8GtCMal2p7cBxlUPRd89ykwE/DXDWvaZsGFjwVwOHiNHirF8GqzHyL57zCxvoykw+Uq52VyIArtxPXh5aQ8jw4/M9qnQ107TwwFCmt2yj+t19tTwzYUH/ABA0jMiWC1B+poW+R5uInsSpO/QMM8qebV2b1jFWrXGKhtPAazMq9tJDjDC3aezjA/E7oUI4b61Aa2LrOmmV0k8I52UKWR5jF+5Mzx1TBGeHo+MGF4ghIjtrSiC5uizJQsiF8B5x3XVlCrOBQghYkT6xKhSOdufnD1OEJndb+g2dJz9iC9+PMh3QR+VML4ysv65bubKlURQLkxlQXRv0jiZj8O0Q/94/GmRcjGPwWnxI7xouPLNNRQZ853p2nMmCy3MYUSkKHU6X0iAP2lUi6X1OdWjBWe3FCk9B9kQknna9edKuBNQwQqof+LJWWnMfu439RVKr7Uw==
