@@ -55,6 +55,7 @@ jobs:
           ansible-lint --version
       - name: Test with Molecule
         run: |
+          ansible-galaxy install tonipamies.vim
           cd ..
           ln -sf ${GITHUB_WORKSPACE} ${ROLE_NAME}
           cd ${ROLE_NAME}
