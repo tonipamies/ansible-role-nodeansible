@@ -29,7 +29,7 @@ galaxy_info:
     - ansible
     - system
     - sysadmin
-    - ansible node
+    - ansiblenode
 
 dependencies:
   - role: tonipamies.vim
